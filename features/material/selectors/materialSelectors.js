@@ -1,0 +1,1 @@
+export const getAllMaterialsSelector = (state) => state.material.materials;
