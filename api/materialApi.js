@@ -5,7 +5,7 @@ import { showToast } from "../features/toast/actions/toastAction";
 
 export const GetAllMaterials = async (query,limit,dispatch) => {
     try {
-        const response = await axiosInstance.get(`/material/allMaterials?query=${query}&$limit=${limit}`);
+        const response = await axiosInstance.get(`/material/allMaterials?page=${query}&limit=${limit}`);
         return response.data;
     } catch (error) {
         console.log(error.response);
@@ -16,7 +16,7 @@ export const GetAllMaterials = async (query,limit,dispatch) => {
 
 export const GetMaterial = async (id, dispatch) => {
     try {
-        const response = await axiosInstance.get(`/material/${id}`);
+        const response = await axiosInstance.get(`/material/getMaterial/${id}`);
         return response.data;
     } catch (error) {
         console.log(error.response);
@@ -62,9 +62,9 @@ export const DeleteMaterial = async (id, dispatch) => {
     }
 }
 
-export const updateMaterialStatus = async (id, status, dispatch) => {
+export const UpdateMaterialStatus = async (id, dispatch) => {
     try {
-        const response = await axiosInstance.put(`/material/updateStatus/${id}`, { status });
+        const response = await axiosInstance.put(`/material/updateStatus/${id}`);
         return response.data;
     } catch (error) {
         console.log(error.response);

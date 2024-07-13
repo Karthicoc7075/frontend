@@ -1,14 +1,31 @@
 import { Close } from '@mui/icons-material'
-import { Box, Button, Card, Container, FormControl, FormLabel, IconButton, Menu, MenuItem, OutlinedInput, Select, Typography, alpha } from '@mui/material'
-import React, { useState } from 'react'
+import { Box, Button, Card, CircularProgress, Container, FormControl, FormLabel, IconButton, Menu, MenuItem, OutlinedInput, Select, Typography, alpha } from '@mui/material'
+import React, { useEffect, useState } from 'react'
 import uploadFileImage from '../../assets/icons/upload-.png'
+import { useDispatch,useSelector } from 'react-redux';
+import { createNotification } from '../../features/notification/actions/notificationActions';
+import { loadingSelector } from '../../features/notification/selectors/notificationSelectors';
+import { showToast } from '../../features/toast/actions/toastAction';
 
 
 export default function CreateNotification() {
     const [title, setTitle] = useState('')
     const [description, setDescription] = useState('')
-    const [SliderType, setSliderType] = useState('link')
     const [selectedImage, setSelectedImage] = useState('');
+    const [image, setImage] = useState(null);
+    const [link, setLink] = useState('');
+    const loading = useSelector(loadingSelector);
+
+    const dispatch = useDispatch();
+
+
+useEffect(()=>{
+    setSelectedImage(null);
+    setImage(null);
+    setTitle('');
+    setDescription('');
+},[loading])
+
 
 
     const handleImageChange = (e) => {
@@ -17,6 +34,7 @@ export default function CreateNotification() {
         
 
         if (file) {
+            setImage(file);
             const reader = new FileReader();
             reader.onloadend = () => {
                 setSelectedImage(reader.result);
@@ -24,6 +42,32 @@ export default function CreateNotification() {
             reader.readAsDataURL(file);
         }
     };
+
+
+
+    const handleSubmit = () => {
+        if(!title || !description ){
+            dispatch(showToast('Please fill all the fields','error'))
+            return;
+        }
+
+        if(!image){
+            dispatch(showToast('Please select image','error'))
+            return;
+        }
+
+
+
+        const formData = new FormData();
+
+        formData.append('title',title);
+        formData.append('description',description);
+        formData.append('file',image);
+
+        dispatch(createNotification(formData));
+
+    }
+
   return (
     <Container maxWidth="xl">
         <Typography variant='h4' sx={{textAlign:'center',fontWeight:'bold',mb:2}}>Create Notification</Typography>
@@ -32,31 +76,18 @@ export default function CreateNotification() {
         <Card sx={{ py: 2, px: 3, maxWidth: '860px', width: '100%' }}>
             <FormControl fullWidth>
                 <FormLabel variant="subtitle1" sx={{ color: 'text.secondary', fontWeight: 'fontWeightSemiBold', mt: 3, mb: 1 }}>Notification Title</FormLabel>  
-                <OutlinedInput />
+                <OutlinedInput value={title} onChange={(e)=>setTitle(e.target.value)}  />
             </FormControl>
             <FormControl fullWidth>
                 <FormLabel variant="subtitle1" sx={{ color: 'text.secondary', fontWeight: 'fontWeightSemiBold', mt: 3, mb: 1 }}>Notification description</FormLabel>  
-                <OutlinedInput />
+                <OutlinedInput  value={description} onChange={(e)=>setDescription(e.target.value) } />
             </FormControl> 
-            <FormControl fullWidth>
-                <FormLabel variant="subtitle1" sx={{ color: 'text.secondary', fontWeight: 'fontWeightSemiBold', mt: 3, mb: 1 }}>Notification Image Type</FormLabel>  
-                <Select defaultValue={SliderType} onChange={(e)=>setSliderType(e.target.value)} >
-                    <MenuItem value='upload' >Upload</MenuItem>
-                    <MenuItem value='link' >Link</MenuItem>
-                </Select>
-            </FormControl>
-            {SliderType === 'link' && (
-                <FormControl fullWidth>
-                    <FormLabel variant="subtitle1" sx={{ color: 'text.secondary', fontWeight: 'fontWeightSemiBold', mt: 3, mb: 1 }}>Notification Image Url</FormLabel>  
-                    <OutlinedInput placeholder='Ex: https://google.com/images' />
-                </FormControl>
-            )}
-            {SliderType === 'upload' && (
+         <FormControl fullWidth>
                 
+                <FormLabel variant="subtitle1" sx={{ color: 'text.secondary', fontWeight: 'fontWeightSemiBold', mt: 3, mb: 1 }}>Notification Image</FormLabel>
                 <Box
                 sx={{
                     position: 'relative',
-                    my:2,
                     p: '5px',
                     height: '100%',
                     bgcolor: theme => theme.palette.grey[200],
@@ -143,12 +174,16 @@ export default function CreateNotification() {
                     </Box>
                 )}
             </Box>
+</FormControl>
 
-               
-            )}
 
-            <Box sx={{width:'100%',textAlign:'center'}} >
-            <Button variant='contained' sx={{ bgcolor: 'linear-gradient(90deg, #2979ff 0%, #2979ff 100%)', p: 1.2, mt: 2 }}  >Create Notification</Button>
+            <Box sx={{width:'100%',textAlign:'center',mt:4}} >
+         {
+            loading ?
+                <CircularProgress />
+                :
+                <Button onClick={handleSubmit} variant='contained' sx={{ bgcolor: 'linear-gradient(90deg, #2979ff 0%, #2979ff 100%)', p: 1.2 }} >Create Notification</Button>
+         }
 
             </Box>
         </Card>

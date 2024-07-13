@@ -1,11 +1,40 @@
-import React, { useState } from 'react'
-import { Box, Card, Container, Typography, FormControl,Button,IconButton, alpha, OutlinedInput } from '@mui/material'
+import React, { useEffect, useState } from 'react'
+import { Box, Card, Container, Typography, FormControl,Button,IconButton, alpha, OutlinedInput, CircularProgress } from '@mui/material'
 import uploadFileImage from '../../assets/icons/upload-.png'
 import { Close } from '@mui/icons-material';
+import { useSelector,useDispatch } from 'react-redux';
+import { updateMedium,getMedium } from '../../features/medium/actions/mediumActions';
+import { updateLoadingSelector ,getMediumSelector } from '../../features/medium/selectors/mediumSelectors'
+import { showToast } from '../../features/toast/actions/toastAction';
+import { useParams } from 'react-router-dom';
+
 
 export default function UpdateMedium() {
     const [mediumName,setMediumName] = useState('')
     const [selectedImage, setSelectedImage] = React.useState(null);
+    const [image, setImage] = React.useState(null);
+    const medium = useSelector(getMediumSelector)
+    const mediumId = useParams().mediumId
+    const loading = useSelector(updateLoadingSelector)
+    const dispatch = useDispatch()
+
+
+
+    useEffect(()=>{
+        if(mediumId){
+            dispatch(getMedium(mediumId))
+        }
+    
+    },[])
+
+    useEffect(()=>{
+
+        if(medium){
+            setMediumName(medium.mediumName)
+            setSelectedImage(medium.image)
+        }
+    },[medium])
+
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -13,6 +42,7 @@ export default function UpdateMedium() {
         
 
         if (file) {
+            setImage(file);
             const reader = new FileReader();
             reader.onloadend = () => {
                 setSelectedImage(reader.result);
@@ -27,12 +57,18 @@ export default function UpdateMedium() {
 
 const submitHandle = () =>{
     
-    let formData = new FormData()
-  
-    formData.append('mediumName',mediumName)
-    formData.append('file',selectedImage)
+    if(!mediumName || !selectedImage){
+        dispatch(showToast('Please fill all the fields','error'))
+        return
+    }
 
-    console.log(...formData);
+    let formData = new FormData()
+
+    formData.append('mediumName',mediumName)
+    formData.append('file',image)
+    formData.append('imageId',medium.image)
+
+    dispatch(updateMedium(mediumId,formData))
 }
 
 
@@ -144,8 +180,11 @@ const submitHandle = () =>{
                             )}
                         </Box>
 
-                        <Box textAlign={'center'}>
-                       <Button onClick={()=>submitHandle()} variant='contained'  sx={{
+                        <Box sx={{mt:2,textAlign:'center'}}>
+                      {
+                        loading ?
+                        <CircularProgress />:
+                        <Button onClick={()=>submitHandle()} variant='contained'  sx={{
                             mt:2,
                             background:theme => theme.palette.common.black,
                             width:'120px',
@@ -154,6 +193,7 @@ const submitHandle = () =>{
                                 opacity:.8
                             }
                         }} >Update</Button>
+                      }
                        </Box>
                     </FormControl>
                 </Card>

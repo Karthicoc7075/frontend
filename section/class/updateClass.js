@@ -1,12 +1,36 @@
-import React, { useState } from 'react'
-import { Box, Card, Container, Typography, FormControl, TextField, InputLabel, Input, Button, Icon, IconButton, alpha, OutlinedInput, InputBase } from '@mui/material'
+import React, { useEffect, useState } from 'react'
+import { Box, Card, Container, Typography, FormControl, TextField, InputLabel, Input, Button, Icon, IconButton, alpha, OutlinedInput, InputBase, CircularProgress } from '@mui/material'
 import { DropzoneArea } from '@mui/x-data-grid';
 import uploadFileImage from '../../assets/icons/upload-.png'
 import { Close } from '@mui/icons-material';
+import { useSelector,useDispatch } from 'react-redux';
+import {showToast} from '../../features/toast/actions/toastAction'
+import { updateClass,getClass } from '../../features/class/actions/classActions'
+import { loadingSelector,getClassSelector,updateLoadingSelector } from '../../features/class/selectors/classSelector'
+import { useParams } from 'react-router-dom';
 
 export default function UpdateClass() {
     const [className,setClassName] = useState('')
-    const [selectedImage, setSelectedImage] = React.useState(null);
+    const [selectedImage, setSelectedImage] = React.useState(null)
+    const [image, setImage] = useState(null)
+    const classId = useParams().classId
+    const dispatch = useDispatch()
+    const loading = useSelector(loadingSelector)
+    const updateLoading = useSelector(updateLoadingSelector)
+    const classData = useSelector(getClassSelector)
+
+    useEffect(()=>{
+        dispatch(getClass(classId))
+    },[])
+
+
+    useEffect(()=>{
+        if(classData){
+            setClassName(classData.className)
+            setSelectedImage(classData.image)
+        }
+    },[classData])
+
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -14,6 +38,7 @@ export default function UpdateClass() {
         
 
         if (file) {
+            setImage(file)
             const reader = new FileReader();
             reader.onloadend = () => {
                 setSelectedImage(reader.result);
@@ -27,13 +52,18 @@ export default function UpdateClass() {
 
 
 const submitHandle = () =>{
-    
+    if(!className || !selectedImage){
+        dispatch(showToast('Please fill all fields','error'))
+        return
+    }
     let formData = new FormData()
   
     formData.append('className',className)
-    formData.append('file',selectedImage)
+    formData.append('file',image)
+    formData.append('imageId',classData?.image)
 
-    console.log(...formData);
+    dispatch(updateClass(classId,formData))
+    
 }
 
 
@@ -45,7 +75,9 @@ const submitHandle = () =>{
             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }} >
 
                 <Card sx={{ py: 2, px: 3, maxWidth: '860px', width: '100%' }} >
-
+                    {loading ? <Box sx={{display:'flex',justifyContent:'center',alignItems:'center',height:'580px'}} >
+                        <CircularProgress />
+                    </Box>:
                     <FormControl  fullWidth  >
                         <Typography variant='subtitle1' sx={{ color: 'text.secondary', fontWeight: 'fontWeightSemiBold', mb: 1 }}>ClassName</Typography>
                         <OutlinedInput
@@ -66,7 +98,9 @@ const submitHandle = () =>{
                                 borderRadius: 1
                             }}
                         >
-                            {!selectedImage &&
+                           
+
+                            {!selectedImage  &&
                                 <Box
                                     sx={{
                                         p: 4,
@@ -146,17 +180,19 @@ const submitHandle = () =>{
                         </Box>
 
                         <Box textAlign={'center'}>
-                       <Button onClick={()=>submitHandle()} variant='contained'  sx={{
-                            mt:2,
-                            background:theme => theme.palette.common.black,
-                            width:'120px',
-                            ':hover':{
-                                background:theme => theme.palette.common.black,
-                                opacity:.8
+                            {
+                                updateLoading ? <CircularProgress sx={{m:2}} /> :
+                                    <Button
+                                        variant='contained'
+                                        sx={{ mt: 3, px: 5 }}
+                                        onClick={submitHandle}
+                                    >
+                                        Update
+                                    </Button>
                             }
-                        }} >Update</Button>
                        </Box>
                     </FormControl>
+}
                 </Card>
             </Box>
         </Container>

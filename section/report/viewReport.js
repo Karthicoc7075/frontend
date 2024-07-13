@@ -1,52 +1,106 @@
-import { Box, Button, Card, Container, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material'
-import React from 'react'
+import { Box, Button, Card, CircularProgress, Container, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material'
+import React, { useEffect,useState } from 'react'
+import { getAllReports,deleteReport,solveReport } from '../../features/report/actions/reportActions';
+import { getAllReportsSelector,loadingSelector,deleteReportLoadingSelector,updateLoadingSelector, } from '../../features/report/selectors/reportSelectors';
+import { useDispatch, useSelector } from 'react-redux';
+import moment from 'moment';
+import DeleteModel from '../../components/model/deleteModel'
+import SolveModel from '../../components/model/solveModel'
+
+
 
 export default function ViewReport() {
+  const [showModel, setShowModel] = useState(false);
+  const [showSolveModel, setShowSolveModel] = useState(false);
+
+  const [deleteId, setDeleteId] = useState('');
+  const [solveId, setSolveId] = useState('');
+  const reports = useSelector(getAllReportsSelector);
+  const loading = useSelector(loadingSelector);
+  const deleteLoading = useSelector(deleteReportLoadingSelector);
+  const solveLoading = useSelector(updateLoadingSelector);
+  const dispatch = useDispatch();
 
 
-  const reports = [
-    {
-      title: 'Class 12',
-      category: 'This is a notification',
-      message: 'This is a notification',
-      date: '2021-09-24',
-    },
-    {
-      title: 'Class 11',
-      category: 'This is a notification',
-      message: 'This is a notification',
-      date: '2021-09-24',
+  useEffect(() => {
+    if(reports.length === 0){
+      dispatch(getAllReports())
     }
-  ]
+  
+}, [])  
+
+useEffect(()=>{
+  setShowModel(false);
+  setShowSolveModel(false);
+}
+,[deleteLoading,solveLoading])
+
+const deleteHandle = () => {
+  dispatch(deleteReport(deleteId));
+  setDeleteId('');
+}
+
+const solveHandle = () => {
+  dispatch(solveReport(solveId));
+  setSolveId('');
+}
+
+
+
+
+
 
 
   return (
     <Container maxWidth="xl" >
       <Typography variant='h4' sx={{ fontWeight: 'bold', my: 2 }}>Reports</Typography>
+      <DeleteModel 
+           showModel={showModel}
+            setShowModel={setShowModel}
+            deleteHandle={deleteHandle}
+            data='Report'
+            loading={deleteLoading}
+           />
+            <SolveModel
+            showModel={showSolveModel}
+            setShowModel={setShowSolveModel}
+            solveHandle={solveHandle}
+            data='Report'
+            loading={solveLoading}
+            />
       <Card
         sx={{
           boxShadow: (theme) => theme.shadows[4],
           my: 2
         }}
       >
-        <TableContainer component={Paper} sx={{ p: 2 }}>
+        {
+        loading ?
+          <Box sx={{display:'flex',justifyContent:'center',alignItems:'center',height:'30vh'}} >
+            <CircularProgress />
+          </Box>:
+          reports.length === 0 ? <Box sx={{display:'flex',justifyContent:'center',alignItems:'center',height:'30vh'}} >
+            <Typography variant='h6' >No Reports</Typography>
+          </Box> :
+          <TableContainer component={Paper} sx={{ p: 2 }}>
           <Table sx={{ minWidth: 700 }} aria-label="customized table">
             <TableHead >
               <TableRow >
                 <TableCell >Title</TableCell>
-                <TableCell align='center'>Categories</TableCell>
-                <TableCell align='center'>Message</TableCell>
+                <TableCell align='center'>postId</TableCell>
+                <TableCell align='center'>Description</TableCell>
                 <TableCell align='center'>Date</TableCell>
                 <TableCell align='center'>Action</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {reports.map((item, index) => (
-                <ReportItem key={index} item={item} />
+                <ReportItem key={index} item={item} setDeleteId={setDeleteId} setSolveId={setSolveId} setShowModel={setShowModel} setShowSolveModel={setShowSolveModel} />
               ))}
             </TableBody>
           </Table>
         </TableContainer>
+        }
       </Card>
     </Container>
   )
@@ -54,19 +108,29 @@ export default function ViewReport() {
 
 
 
-function ReportItem({ item }) {
+function ReportItem({ item,setDeleteId,setSolveId,setShowModel,setShowSolveModel }) {
+
+  const deleteHandle = () => {
+    setDeleteId(item._id);
+    setShowModel(true);
+  }
+
+  const solveHandle = () => {
+    setSolveId(item._id);
+   setShowSolveModel(true);
+  }
   return (
     <TableRow key={item.title}>
       <TableCell component="th" scope="row">
-        {item.title}
-      </TableCell>
-      <TableCell align='center'>{item.category}</TableCell>
-      <TableCell align='center'>{item.message}</TableCell>
-      <TableCell align='center'>{item.date}</TableCell>
+        {item.postId.title}
+      </TableCell> 
+      <TableCell align='center'>{item.postId._id}</TableCell>
+      <TableCell align='center'>{item.description}</TableCell>
+      <TableCell align='center'>{moment(item.createdAt).format('LL')}</TableCell>
       <TableCell align='center'>
         <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }} >
-          <Button variant='contained' sx={{ bgcolor: 'linear-gradient(90deg, #ff1744 0%, #ff1744 100%)', p: 1.2 }}  >Approve</Button>
-          <Button variant='contained' sx={{ bgcolor: 'linear-gradient(90deg, #ff1744 0%, #ff1744 100%)', p: 1.2 }}  >Delete</Button>
+          <Button variant='contained' sx={{ bgcolor: 'linear-gradient(90deg, #ff1744 0%, #ff1744 100%)', p: 1.2 }} onClick={()=>solveHandle()} >Solve</Button>
+          <Button variant='contained' sx={{ bgcolor: 'linear-gradient(90deg, #ff1744 0%, #ff1744 100%)', p: 1.2 }} onClick={()=>deleteHandle()}  >Delete</Button>
         </Box>
       </TableCell>
     </TableRow>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import {
   Container,
   Grid,
@@ -10,26 +10,60 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { Link } from "react-router-dom";
-import Model from "../../components/model/model";
+import DeleteModel from "../../components/model/deleteModel";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllCategories,deleteCategory} from "../../features/category/actions/categoryActions";
+import { getCategoriesSelector, loadingSelector, deleteLoadingSelector } from "../../features/category/selectors/categorySelectors";
 
-const Categories = [
-  {
-    image:
-      "https://minimal-kit-react.vercel.app/assets/images/products/product_1.jpg",
-    categoryName: "Class 12",
-  },
-  {
-    image:
-      "https://minimal-kit-react.vercel.app/assets/images/products/product_1.jpg",
-    categoryName: "Class 11",
-  },
-];
+
+
 
 export default function Category() {
   const [showModel, setShowModel] = useState(false);
+  const categories = useSelector(getCategoriesSelector);
+  const dispatch = useDispatch();
+  const [deleteId, setDeleteId] = useState(null);
+  const loading = useSelector(loadingSelector);
+  const deleteLoading = useSelector(deleteLoadingSelector);
+
+  useEffect(() => {
+    if (categories.length === 0) {
+      dispatch(getAllCategories());
+    }
+
+  }, []);
+
+
+  useEffect(()=>{
+    if(!deleteLoading){
+      setShowModel(false)
+    }
+  },[deleteLoading])
+
+  const deleteHandle = () => {
+    dispatch(deleteCategory(deleteId,{deleteAutomatic:false}));
+    setDeleteId(null);
+  }
+
+  const deleteAllHandle = () => {
+    dispatch(deleteCategory(deleteId,{deleteAutomatic:true}));
+    setDeleteId(null);
+  }
+
+
   return (
     <Container maxWidth="xl">
-      {showModel && <Model setShowModel={setShowModel} />}
+       <DeleteModel 
+           showModel={showModel}
+            setShowModel={setShowModel}
+            deleteAllHandle={deleteAllHandle}
+            deleteHandle={deleteHandle}
+            data='Category'
+            desc="Are you sure you want to delete this category? Deleting it will also remove all news within the same category. Do you want to proceed with automatic deletion of the news or delete them manually?"
+            loading={deleteLoading}
+           />
+   
+      
       <Box sx={{ display: "flex", my: 2 }}>
         <Typography variant="h5" sx={{ flexGrow: 1 }}>
           Categories
@@ -46,17 +80,27 @@ export default function Category() {
           ADD CATEGORY
         </Button>
       </Box>
+      {loading ? <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }} >
+        <CircularProgress />
+      </Box> :
       <Grid container spacing={2} sx={{ mt: 1 }}>
-        {Categories.map((item, index) => (
-          <CategoryItem key={index} item={item} setShowModel={setShowModel} />
+        {categories.map((item, index) => (
+          <CategoryItem key={index} item={item} setShowModel={setShowModel} setDeleteId={setDeleteId} />
         ))}
       </Grid>
+}
     </Container>
   );
 }
 
-function CategoryItem({ item, setShowModel }) {
+function CategoryItem({ item, setShowModel,setDeleteId }) {
   const [loader, setLoader] = useState(true);
+
+  
+  const deleteButtonClick = () => {
+    setShowModel(true);
+    setDeleteId(item._id);
+  }
   return (
     <Grid item xs={12} sm={6} md={4} lg={3}>
       <Card
@@ -64,6 +108,7 @@ function CategoryItem({ item, setShowModel }) {
           p: 1.5,
           boxShadow: (theme) => theme.shadows[6],
           borderRadius: 2,
+          height: "100%",
         }}
       >
         <Box
@@ -97,20 +142,19 @@ function CategoryItem({ item, setShowModel }) {
         <Box sx={{ display: "flex", justifyContent: "center", gap: 1 }}>
           <Button
             component={Link}
-            to="/category/update"
+            to={`/category/update/${item._id}`}
             variant="contained"
             sx={{ bgcolor: "linear-gradient(90deg, #2979ff 0%, #2979ff 100%)" }}
           >
             Edit
           </Button>
           <Button
-            component={Link}
+              onClick={deleteButtonClick}
             variant="contained"
             sx={{
               p: 1.2,
               bgcolor: "linear-gradient(90deg, #2979ff 0%, #2979ff 100%)",
             }}
-            onClick={() => setShowModel(true)}
           >
             Delete
           </Button>

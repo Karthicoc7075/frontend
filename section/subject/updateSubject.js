@@ -1,12 +1,36 @@
-import React, { useState } from 'react'
-import { Box, Card, Container, Typography, FormControl, TextField, InputLabel, Input, Button, Icon, IconButton, alpha, OutlinedInput, InputBase } from '@mui/material'
+import React, { useEffect, useState } from 'react'
+import { Box, Card, Container, Typography, FormControl, TextField, InputLabel, Input, Button, Icon, IconButton, alpha, OutlinedInput, InputBase, CircularProgress } from '@mui/material'
 import { DropzoneArea } from '@mui/x-data-grid';
 import uploadFileImage from '../../assets/icons/upload-.png'
 import { Close } from '@mui/icons-material';
+import { useSelector,useDispatch } from 'react-redux';
+import {showToast} from '../../features/toast/actions/toastAction'
+import { updateSubject,getSubject } from '../../features//subject/actions/subjectActions'
+import { loadingSelector,updateLoadingSelector,getSubjectSelector } from '../../features//subject/selectors/subjectSelectors'
+import { useParams } from 'react-router-dom';
 
 export default function UpdateSubject() {
     const [subjectName,setSubjectName] = useState('')
     const [selectedImage, setSelectedImage] = React.useState(null);
+    const [image, setImage] = useState(null);
+    const subjectId = useParams().subjectId
+    const dispatch = useDispatch()
+    const loading = useSelector(loadingSelector)
+    const updateLoading = useSelector(updateLoadingSelector)
+    const subjectData = useSelector(getSubjectSelector)
+
+
+    useEffect(()=>{
+        dispatch(getSubject(subjectId))
+    },[])
+
+    useEffect(()=>{
+        if(subjectData){
+            setSubjectName(subjectData.subjectName)
+            setSelectedImage(subjectData.image)
+        }
+    },[subjectData])
+        
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -14,6 +38,7 @@ export default function UpdateSubject() {
         
 
         if (file) {
+            setImage(file);
             const reader = new FileReader();
             reader.onloadend = () => {
                 setSelectedImage(reader.result);
@@ -27,13 +52,18 @@ export default function UpdateSubject() {
 
 
 const submitHandle = () =>{
-    
+    if(!subjectName || !selectedImage){
+        dispatch(showToast('Please fill all fields','error'))
+        return
+    }
+
     let formData = new FormData()
   
     formData.append('subjectName',subjectName)
-    formData.append('file',selectedImage)
+    formData.append('file',image)
+    formData.append('imageId',subjectData?.image)
 
-    console.log(...formData);
+    dispatch(updateSubject(subjectId,formData))
 }
 
 
@@ -45,7 +75,9 @@ const submitHandle = () =>{
             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }} >
 
                 <Card sx={{ py: 2, px: 3, maxWidth: '860px', width: '100%' }} >
-
+                {loading ? <Box sx={{display:'flex',justifyContent:'center',alignItems:'center',height:'580px'}} >
+                        <CircularProgress />
+                    </Box>:
                     <FormControl  fullWidth  >
                         <Typography variant='subtitle1' sx={{ color: 'text.secondary', fontWeight: 'fontWeightSemiBold', mb: 1 }}>Subject Name</Typography>
                         <OutlinedInput
@@ -66,6 +98,7 @@ const submitHandle = () =>{
                                 borderRadius: 1
                             }}
                         >
+                        
                             {!selectedImage &&
                                 <Box
                                     sx={{
@@ -146,7 +179,9 @@ const submitHandle = () =>{
                         </Box>
 
                         <Box textAlign={'center'}>
-                       <Button onClick={()=>submitHandle()} variant='contained'  sx={{
+                      {
+                        updateLoading ?  <CircularProgress sx={{m:2}} /> :
+                        <Button onClick={()=>submitHandle()} variant='contained'  sx={{
                             mt:2,
                             background:theme => theme.palette.common.black,
                             width:'120px',
@@ -155,8 +190,10 @@ const submitHandle = () =>{
                                 opacity:.8
                             }
                         }} >Update</Button>
+                      }
                        </Box>
                     </FormControl>
+}
                 </Card>
             </Box>
         </Container>

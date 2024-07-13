@@ -9,26 +9,50 @@ import { MenuOpen } from "@mui/icons-material";
 import { alpha } from "@mui/material/styles";
 import {  Settings } from "@mui/icons-material";
 import { Menu, MenuItem, Typography, useMediaQuery } from "@mui/material";
-
+import { getAuthSelector } from "../../features/auth/selectors/authSelector";
+import { useSelector } from "react-redux";
+import { jwtDecode } from "jwt-decode";
+import { useDispatch } from "react-redux";
+import {logout} from '../../features/auth/actions/authActions'
 
 export default function Header({ onOpenSidebar }) {
   const theme = useTheme();
-
-  const lgUp = useMediaQuery(theme.breakpoints.up("lg"));
-const [showModel, setShowModel] = useState(false)
+const lgUp = useMediaQuery(theme.breakpoints.up("lg"));
   const [anchorEl, setAnchorEl] = useState(null);
+const auth = useSelector(getAuthSelector);
+const dispatch = useDispatch()
+
   const open = Boolean(anchorEl);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
-    console.log(event.currentTarget);
-    console.log(Boolean(event.currentTarget));
   };
 
-  const handleClose = () => {
+  const handleModelClose = () => {
     setAnchorEl(null);
-    setShowModel(true)
   };
+
+  const Logout = () => {
+    dispatch(logout())
+  }
+
+
+  const handleLogout = () => {
+    Logout()
+   handleModelClose()
+  }
+
+
+  useState(() => {
+    const token = auth.token;
+    if (token) {
+      const decode = jwtDecode(token);
+      const expireDate =new Date(decode.exp * 1000)
+      if(expireDate < new Date()){
+        Logout()
+      }
+    }
+  }, [auth.token]);
 
 
 
@@ -58,7 +82,7 @@ const [showModel, setShowModel] = useState(false)
             id="basic-menu"
             anchorEl={anchorEl}
             open={open}
-            onClose={handleClose}
+            onClose={handleModelClose}
             MenuListProps={{
               'aria-labelledby': 'long-button',
             }}
@@ -72,8 +96,8 @@ const [showModel, setShowModel] = useState(false)
             
             }}
           >
-            <MenuItem onClick={handleClose}>Setting</MenuItem>
-            <MenuItem onClick={handleClose}>Logout</MenuItem>
+            <MenuItem onClick={handleLogout}>Setting</MenuItem>
+            <MenuItem onClick={handleLogout}>Logout</MenuItem>
           </Menu>
     </>
   );

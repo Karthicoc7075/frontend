@@ -58,7 +58,7 @@ const classReducer = (state = initialState, action) => {
             return {
                 ...state,
                 loading: false,
-                classes: [...state.classes, action.payload],
+                classes: [action.payload,...state.classes],
                 error: '',
             };
         case types.CREATE_CLASS_FAILURE:

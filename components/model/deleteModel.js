@@ -1,37 +1,55 @@
 import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Button,
-    Box,
-    IconButton,
-    Typography,
-  } from '@mui/material';
-  import { Close } from '@mui/icons-material';
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  Box,
+  IconButton,
+  Typography,
+  Card,
+  CircularProgress,
+} from '@mui/material';
+import { Close } from '@mui/icons-material';
+
+const deleteModel = ({showModel,setShowModel,deleteAllHandle,deleteHandle,data,desc,loading} ) => {
   
-  const Model = ({setShowModel}) => {
-    
-    
-    return (
-      <Dialog open={true} maxWidth="sm" fullWidth>
-        <DialogTitle>Confirm the action</DialogTitle>
-        <Box position="absolute" top={0} right={0}>
-          
+  return (
+   <Dialog open={showModel}>
+    {
+      !loading ?
+      <Box  >
+      <DialogTitle>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} >
+          <Typography variant='h6' >Delete {data}</Typography>
+          <IconButton onClick={() => setShowModel(false)} >
+            <Close />
+          </IconButton>
         </Box>
-        <DialogContent>
-          <Typography>some message here</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button color="primary" variant="contained" onClick={()=>setShowModel(false)}>
-            Cancel
-          </Button>
-          <Button color="error" variant="contained">
-            Confirm
-          </Button>
-        </DialogActions>
-      </Dialog>
-    );
-  };
-  
-  export default Model;
+      </DialogTitle>
+      <DialogContent>
+        <Typography variant='body1' >
+          {desc ? desc  : 'Are you sure you want to delete this {data}?'}
+        </Typography>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setShowModel(false)} color="primary">
+          Cancel
+        </Button>
+        <Button onClick={deleteAllHandle} color="secondary">
+          Delete All automatically
+        </Button>
+        <Button onClick={deleteHandle} color="secondary">
+          Delete Manually
+        </Button>
+      </DialogActions>
+    </Box>:
+ 
+    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p:2 }} ><CircularProgress /></Box>
+    
+    }
+   </Dialog  >
+  );
+};
+
+export default deleteModel;

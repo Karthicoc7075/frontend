@@ -1,63 +1,91 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Container,
   Grid,
   Typography,
   Card,
-  CardMedia,
   Button,
   Box,
   CircularProgress,
+  Dialog
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import DeleteModel from "../../components/model/deleteModel";
-
-const classes = [
-  {
-    image:
-      "https://minimal-kit-react.vercel.app/assets/images/products/product_1.jpg",
-    className: "Class 12",
-  },
-  {
-    image:
-      "https://minimal-kit-react.vercel.app/assets/images/products/product_1.jpg",
-    className: "Class 11",
-  },
-];
+import { useDispatch, useSelector } from "react-redux";
+import { deleteClass, getAllClasses } from "../../features/class/actions/classActions";
+import { getAllClassesSelector, loadingSelector, deleteLoadingSelector } from "../../features/class/selectors/classSelector";
 
 export default function ViewClass() {
   const [showModel, setShowModel] = useState(false);
+  const classes = useSelector(getAllClassesSelector);
+  const dispatch = useDispatch();
+  const [deleteId, setDeleteId] = useState(null);
+  const loading = useSelector(loadingSelector);
+  const deleteLoading = useSelector(deleteLoadingSelector);
+
+  useEffect(() => {
+    if (classes.length === 0) {
+      dispatch(getAllClasses());
+    }
+
+    setShowModel(false);
+  }, [classes]);
+
+  const deleteHandle = () => {
+    dispatch(deleteClass(deleteId));
+    setDeleteId(null);
+  }
+
+
+
 
   return (
     <Container maxWidth="xl">
-      {showModel && <DeleteModel setShowModel={setShowModel} />}
-      <Box sx={{ display: "flex", my: 2 }}>
-        <Typography variant="h5" sx={{ flexGrow: 1 }}>
-          Classes
-        </Typography>
-        <Button
-          component={Link}
-          to="/class/create"
-          variant="contained"
-          sx={{
-            p: 1.2,
-            bgcolor: "linear-gradient(90deg, #2979ff 0%, #2979ff 100%)",
-          }}
-        >
-          ADD CLASS
-        </Button>
-      </Box>
-      <Grid container spacing={2} sx={{ mt: 1 }}>
-        {classes.map((item, index) => (
-          <ClassItem key={index} item={item} setShowModel={setShowModel} />
-        ))}
-      </Grid>
+           <DeleteModel 
+           showModel={showModel}
+            setShowModel={setShowModel}
+            deleteHandle={deleteHandle}
+            data='Class'
+            loading={deleteLoading}
+           />
+   
+          <Box sx={{ display: "flex", my: 2 }}>
+            <Typography variant="h5" sx={{ flexGrow: 1 }}>
+              Classes
+            </Typography>
+            <Button
+              component={Link}
+              to="/class/create"
+              variant="contained"
+              sx={{
+                p: 1.2,
+                bgcolor: "linear-gradient(90deg, #2979ff 0%, #2979ff 100%)",
+              }}
+            >
+              ADD CLASS
+            </Button>
+          </Box>
+          {loading ? <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }} >
+        <CircularProgress />
+      </Box> :
+          <Grid container spacing={2} sx={{ mt: 1 }}>
+            {classes.map((item, index) => (
+              <ClassItem key={index} item={item} setShowModel={setShowModel} setDeleteId={setDeleteId} />
+            ))}
+          </Grid>
+        }
+      
     </Container>
   );
 }
 
-function ClassItem({ item, setShowModel }) {
+function ClassItem({ item, setShowModel, setDeleteId }) {
   const [loader, setLoader] = useState(true);
+
+  const deleteButtonClick = () => {
+    setShowModel(true);
+    setDeleteId(item._id);
+  }
   return (
     <Grid item xs={12} sm={6} md={4} lg={3}>
       <Card
@@ -65,6 +93,7 @@ function ClassItem({ item, setShowModel }) {
           p: 1.5,
           boxShadow: (theme) => theme.shadows[6],
           borderRadius: 2,
+          height: "100%",
         }}
       >
         <Box
@@ -85,7 +114,7 @@ function ClassItem({ item, setShowModel }) {
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              height: "100px",
+              height: "150px",
             }}
           >
             <CircularProgress />
@@ -105,7 +134,7 @@ function ClassItem({ item, setShowModel }) {
         >
           <Button
             component={Link}
-            to="/class/update"
+            to={`/class/update/${item._id}`}
             variant="contained"
             sx={{ bgcolor: "linear-gradient(90deg, #2979ff 0%, #2979ff 100%)" }}
           >
@@ -114,20 +143,19 @@ function ClassItem({ item, setShowModel }) {
 
           <Button
             component={Link}
-            to="/class/manage-class"
+            to={`/class/manage-class/${item._id}`}
             variant="contained"
             sx={{ bgcolor: "linear-gradient(90deg, #2979ff 0%, #2979ff 100%)" }}
           >
             ManageClass
           </Button>
           <Button
-            component={Link}
             variant="contained"
             sx={{
               p: 1.2,
               bgcolor: "linear-gradient(90deg, #2979ff 0%, #2979ff 100%)",
             }}
-            onClick={() => setShowModel(true)}
+            onClick={() => deleteButtonClick()}
           >
             Delete
           </Button>

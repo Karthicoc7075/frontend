@@ -56,7 +56,7 @@ const subjectReducer = (state = initialState, action) => {
             return {
                 ...state,
                 loading: false,
-                subjects: [...state.subjects, action.payload]
+                subjects: [action.payload,...state.subjects]
             }
         case types.CREATE_SUBJECT_FAILURE:
             return {

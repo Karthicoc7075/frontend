@@ -1,17 +1,51 @@
-import React, { useState } from 'react'
-import { useSelector } from 'react-redux'
-import { Box, Card, Container, Typography, FormControl, Button, IconButton, alpha, OutlinedInput, Select, MenuItem, FormLabel } from '@mui/material'
+import React, { useEffect, useState } from 'react'
+import { Box, Card, Container, Typography, FormControl, Button, IconButton, alpha, OutlinedInput, Select, MenuItem, FormLabel, CircularProgress } from '@mui/material'
 import uploadFileImage from '../../assets/icons/upload-.png'
 import { Close } from '@mui/icons-material';
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from 'react-router-dom';
+import {showToast} from '../../features/toast/actions/toastAction'
+import { getSlider,createSlider } from "../../features//slider/actions/sliderActions";
+import { loadingSelector,updateLoadingSelector,getSliderSelector } from "../../features/slider/selectors/sliderSelectors";
+import {getAllClasses} from '../../features/class/actions/classActions'
+import {getAllMaterials} from '../../features/material/actions/materialActions'
+import {getAllNews} from '../../features/news/actions/newsActions'
+import { getAllClassesSelector } from '../../features/class/selectors/classSelector';
+import { getAllMaterialsSelector } from '../../features/material/selectors/materialSelectors';
+
+import { getAllNewsSelector } from '../../features/news/selectors/newsSelectors';
+
 
 export default function CreateSlider() {
     const [title, setTitle] = useState('')
-    const [SliderType, setSliderType] = useState('category')
-    const [id, setId] = useState('')
+    const [sliderType, sets] = useState('material')
+    const [selectId, setSelectId] = useState('')
+    const [link,setLink] = useState('')
     const [selectedImage, setSelectedImage] = React.useState(null);
-    const selectCategoryData = ''
-    const selectMaterialsData = ''
-    const selectNewsData = ''
+    const [image, setImage] = useState(null)
+    const selectClassesData = useSelector(getAllClassesSelector)
+    const selectMaterialsData = useSelector(getAllMaterialsSelector)
+    const selectNewsData = useSelector(getAllNewsSelector)
+    const loading = useSelector(loadingSelector)
+    const dispatch = useDispatch();
+
+    const [page,setPage] = useState(1)
+    const [postLimit,setPostLimit] = useState(10)
+
+
+    useEffect(()=>{
+        if(sliderType =='class'){
+            dispatch(getAllClasses())
+        }
+
+        if(sliderType == 'material'){
+            dispatch(getAllMaterials(page,postLimit))
+        }
+
+        if(sliderType == 'news'){
+            dispatch(getAllNews())
+        }
+    },[sliderType])
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -19,6 +53,7 @@ export default function CreateSlider() {
 
 
         if (file) {
+            setImage(file)
             const reader = new FileReader();
             reader.onloadend = () => {
                 setSelectedImage(reader.result);
@@ -27,35 +62,54 @@ export default function CreateSlider() {
         }
     };
 
+
+
+
     const submitHandle = () => {
 
         let formData = new FormData()
 
-        formData.append('title', title)
-        formData.append('file', selectedImage)
+        if(sliderType =='class'){
+            formData.append('classId',selectId)
+        }
 
-        console.log(...formData);
+        if(sliderType == 'material'){
+           formData.append('materialId',selectId)
+        }
+
+        if(sliderType == 'news'){
+           formData.append('newsId',selectId)
+        }
+        if(sliderType == 'link'){
+            formData.append('link',link)
+        }
+        formData.append('title', title)
+        formData.append('sliderType', sliderType)
+        formData.append('file',image)
+
+       dispatch(createSlider(formData))
     }
 
 
     const renderFormControl = (label, dataSelector) => {
-        const data = []
+console.log(label);
+        console.log(dataSelector);
+        let data = dataSelector ?? []
 
         return (
             <FormControl fullWidth key={label}>
                 <FormLabel variant="subtitle1" sx={{ color: 'text.secondary', fontWeight: 'fontWeightSemiBold',mt:3, mb: 1 }}>
                     {label}
                 </FormLabel>
-                <Select  >
+                <Select defaultValue={selectId??''} onChange={(e)=>setSelectId(e.target.value)} >
                     {data.map((item) => (
-                        <MenuItem key={item.id || item.name}>{item.categoryName || item.materialName || item.title}</MenuItem>
+                        <MenuItem key={item._id} value={item._id}   >{item.className || item.materialName || item.title}</MenuItem>
                     ))}
                 </Select>
             </FormControl>
         );
     };
 
-    console.log(SliderType);
     return (
         <Container maxWidth='xl' >
             <Typography variant='h4' sx={{ mt: 2, textAlign: 'center', fontWeight: 'fontWeightBold' }} >
@@ -75,9 +129,9 @@ export default function CreateSlider() {
 
                     </FormControl>
                     <FormControl fullWidth >
-                        <FormLabel variant='subtitle1' sx={{ color: 'text.secondary', fontWeight: 'fontWeightSemiBold',mt:3, mb: 1 }}>SliderType</FormLabel>
-                        <Select defaultValue={'category'} onChange={(e) => setSliderType(e.target.value)}>
-                            <MenuItem value='category' >Category</MenuItem>
+                        <FormLabel variant='subtitle1' sx={{ color: 'text.secondary', fontWeight: 'fontWeightSemiBold',mt:3, mb: 1 }}>sliderType</FormLabel>
+                        <Select defaultValue={sliderType ?? ''} onChange={(e) => sets(e.target.value)}>
+                            <MenuItem value='class' > Class</MenuItem>
                             <MenuItem value='news' >News</MenuItem>
                             <MenuItem value='material'>Material</MenuItem>
                             <MenuItem value='link' >Link</MenuItem>
@@ -85,15 +139,15 @@ export default function CreateSlider() {
                         </Select>
                     </FormControl>
 
-                    {SliderType === 'category' && renderFormControl('Category', selectCategoryData)}
-                    {SliderType === 'material' && renderFormControl('Material', selectMaterialsData)}
-                    {SliderType === 'news' && renderFormControl('News', selectNewsData)}
-                    {SliderType === 'link' && (
+                    {sliderType === 'class' && renderFormControl('Class', selectClassesData)}
+                    {sliderType === 'material' && renderFormControl('Material', selectMaterialsData)}
+                    {sliderType === 'news' && renderFormControl('News', selectNewsData)}
+                    {sliderType === 'link' && (
                         <FormControl fullWidth key="link">
                             <FormLabel variant="subtitle1" sx={{ color: 'text.secondary', fontWeight: 'fontWeightSemiBold', mb: 1,mt:3 }}>
                                 Link
                             </FormLabel>
-                            <OutlinedInput placeholder="Ex: https://www.google.com" />
+                            <OutlinedInput placeholder="Ex: https://www.google.com" onChange={(e)=>setLink(e.target.value)}  />
                         </FormControl>
                     )}
                     <FormControl fullWidth >
@@ -189,9 +243,12 @@ export default function CreateSlider() {
                             )}
                         </Box>
 
-                        <Box textAlign={'center'}>
+                        <Box sx={{display:'flex',justifyContent:'center',mt:3}}>
+                          {
+                            loading ?
+                            <CircularProgress/>:
                             <Button onClick={() => submitHandle()} variant='contained' sx={{
-                                mt: 2,
+                                
                                 background: theme => theme.palette.common.black,
                                 width: '120px',
                                 ':hover': {
@@ -199,6 +256,7 @@ export default function CreateSlider() {
                                     opacity: .8
                                 }
                             }} >Create</Button>
+                          }
                         </Box>
                     </FormControl>
                 </Card>

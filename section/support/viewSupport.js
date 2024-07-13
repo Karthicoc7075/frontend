@@ -1,91 +1,111 @@
-import React, { useState } from 'react'
+import React, { useState,useEffect } from 'react'
 import { Container, Grid, Typography, Card, CardMedia, Button, Box, CircularProgress, Avatar, Rating, IconButton, Menu, MenuItem } from '@mui/material'
 import { Link } from 'react-router-dom'
-import Model from '../../components/model/model'
 import AvatarImg from '../../assets/avatar_25.jpg'
-import { GridMenuIcon } from '@mui/x-data-grid'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import Review from '../review'
+import DeleteModel from "../../components/model/deleteModel";
+import SolveModel from '../../components/model/solveModel';
+import { useDispatch, useSelector } from "react-redux";
+import { getAllSupports,deleteSupport,solveSupport } from "../../features/support/actions/supportActions";
+import { getAllSupportSelector , loadingSelector, deleteLoadingSelector,solveLoadingSelector } from "../../features/support/selectors/supportSelectors";
+import moment from 'moment';
 
-const Supports = [
-  {
-    image: AvatarImg,
-    username: 'John Doe',
-    message: 'This is a good product',
-    days: '2 days ago'
-  },
-  {
-    image: AvatarImg,
-    username: 'John Doe',
-    message: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit orem ipsum dolor sit amet, consectetur adipiscing elit orem ipsum dolor sit amet, consectetur adipiscing eli orem ipsum dolor sit amet, consectetur adipiscing eli orem ipsum dolor sit amet, consectetur adipiscing eli',
-    days: '2 days ago'
-  },
-  {
-    image: AvatarImg,
-    username: 'John Doe',
-    message: 'This is a good product',
-    days: '2 days ago'
-  },
-  {
-    image: AvatarImg,
-    username: 'John Doe',
-    message: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
-    days: '2 days ago'
-  },
-  {
-    image: AvatarImg,
-    username: 'John Doe',
-    message: 'This is a good product',
-    days: '2 days ago'
-  },
-  {
-    image: AvatarImg,
-    username: 'John Doe',
-    message: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
-    days: '2 days ago'
-  },
-  {
-    image: AvatarImg,
-    username: 'John Doe',
-    message: 'This is a good product',
-    days: '2 days ago'
-  },
-  {
-    image: AvatarImg,
-    username: 'John Doe',
-    message: 'Lorem ipsum dolor sit amet, consectetur adipiscing eli lorem',
-    days: '2 days ago'
-  },
-]
 
 export default function ViewSupport() {
   const [showModel, setShowModel] = useState(false)
+  const [showSolveModel, setShowSolveModel] = useState(false)
+  const supports = useSelector(getAllSupportSelector);
+  const dispatch = useDispatch();
+  const [deleteId, setDeleteId] = useState(null);
+  const [solveId, setSolveId] = useState(null);
+  const loading = useSelector(loadingSelector);
+  const deleteLoading = useSelector(deleteLoadingSelector);
+  const solveLoading = useSelector(solveLoadingSelector);
+
+
+  
+  useEffect(() => {
+    if (supports.length === 0) {
+      dispatch(getAllSupports());
+    }
+
+  }, []);
+
+
+
+useEffect(()=>{
+  setShowModel(false);
+  setShowSolveModel(false);
+},[deleteLoading,solveLoading])
+
+  const deleteHandle = () => {
+    dispatch(deleteSupport(deleteId));
+    setDeleteId(null);
+  }
+
+  const solveHandle = () => {
+    dispatch(solveSupport(solveId));
+    setSolveId(null);
+  }
+  
   return (
     <Container maxWidth="xl"   >
-      <Typography variant='h5' sx={{ flexGrow: 1 }} >Supports</Typography>
-      {showModel && <Model setShowModel={setShowModel} data={Supports[0]} />} 
+       <DeleteModel 
+           showModel={showModel}
+            setShowModel={setShowModel}
+            deleteHandle={deleteHandle}
+            data='Support'
+            loading={deleteLoading}
+           />
+            <SolveModel
+            showModel={showSolveModel}
+            setShowModel={setShowSolveModel}
+            solveHandle={solveHandle}
+            data='Support'
+            loading={solveLoading}
+            />
+        
+     
+      {loading ? <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }} >
+        <CircularProgress />
+      </Box> :
       <Grid container spacing={2} sx={{ mt: 1 }}  >
         {
-           Supports.map((item, index) => (
-            <SupportItem key={index} item={item} setShowModel={setShowModel} />
+           supports.map((item, index) => (
+            <SupportItem key={index} item={item} setShowModel={setShowModel} setDeleteId={setDeleteId} setShowSolveModel={setShowSolveModel}  setSolveId={setSolveId}/>
           ))
         }
       </Grid>
-
+}
+     
     </Container>
   )
 }
 
-function SupportItem({ item, setShowModel }){
+function SupportItem({ item, setShowModel,setDeleteId,setShowSolveModel,setSolveId }){
   const [loader, setLoader] = useState(true)
 
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
+
+  const deleteButtonClick = () => {
+    console.log('delete');
+    setShowModel(true);
+    setDeleteId(item._id);
+    handleClose();
+  }
+
+  const sovleButtonClick = () => {
+    setShowSolveModel(true);
+    setSolveId(item._id);
+    handleClose();
+  }
+
+
+
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
-    console.log(event.currentTarget);
-    console.log(Boolean(event.currentTarget));
   };
 
   const handleClose = () => {
@@ -110,19 +130,28 @@ function SupportItem({ item, setShowModel }){
       >
 
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 1 }} >
-          <Avatar sx={{ width: 50, height: 50, }} src={item.image} />
-          <Typography variant='subtitle1' >{item.username}</Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 1,width:'100%' }} >
+          <Avatar sx={{ width: 50, height: 50, }} src={AvatarImg} />
+          <Typography variant='subtitle1' >{item.user.username}</Typography>
 
         </Box>
+        <Typography variant='h6' sx={{width:'100%'}}  >
+          {item.title}
+        </Typography>
         <Typography variant='body2'  >
           {item.message.slice(0, 80)}<span style={{ color: '#2979ff' }} onClick={() => setShowModel(true)} >{item.message.length >=80 && '...Read more'}</span>
         </Typography>
+
+
+        <Box>
+        <Typography variant='subtitle2' color={'text.secondary'} mt={2}  >Contact email:{item.user.email}</Typography>
+          
+        </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
           <IconButton id="long-button" onClick={handleClick}>
             <MoreHorizIcon />
           </IconButton>
-          <Typography variant='body2'>{item.days}</Typography>
+          <Typography variant='body2'>{moment(item.createdAt).fromNow()}</Typography>
 
           <Menu
             id="basic-menu"
@@ -133,8 +162,8 @@ function SupportItem({ item, setShowModel }){
               'aria-labelledby': 'long-button',
             }}
           >
-            <MenuItem onClick={handleClose}>Solve</MenuItem>
-            <MenuItem onClick={handleClose}>Delete</MenuItem>
+            <MenuItem onClick={sovleButtonClick}>Solve</MenuItem>
+            <MenuItem onClick={deleteButtonClick}>Delete</MenuItem>
           </Menu>
         </Box>
       </Card>

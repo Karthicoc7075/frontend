@@ -1,37 +1,110 @@
-import React from 'react'
-import { Box,FormControl,FormLabel,OutlinedInput,Select,MenuItem,Button } from '@mui/material'
-function appSetting() {
-  return (
-    <Box  maxWidth={700} >
-    <FormControl fullWidth>
-    <FormLabel sx={{mb:1,mt:2}} >App Name</FormLabel>
-    <OutlinedInput />
-    </FormControl>
-    <FormControl fullWidth>
-    <FormLabel  sx={{mb:1,mt:2}} >Maintance Mode</FormLabel>
-    <Select defaultValue={false} >
-       <MenuItem value={true}>On</MenuItem>
-       <MenuItem value={false}>Off</MenuItem>
-    </Select>
-    </FormControl>
-    <FormControl fullWidth>
-    <FormLabel  sx={{mb:1,mt:2}} >Firebase Legacy server key</FormLabel>
-    <OutlinedInput/>
-    </FormControl>
-    <FormControl fullWidth>
-    <FormLabel  sx={{mb:1,mt:2}} >App Link</FormLabel>
-    <OutlinedInput/>
-    </FormControl>
-    <FormControl fullWidth>
-    <FormLabel  sx={{mb:1,mt:2}} >Privacy Policy</FormLabel>
-    <textarea aria-label="empty textarea" placeholder="Empty" style={{maxWidth:'100%'}} />
-    </FormControl>
-    <Box sx={{my:2,textAlign:'center'}}>
-    <Button  variant='contained' sx={{ p: 1.2, bgcolor: 'linear-gradient(90deg, #2979ff 0%, #2979ff 100%)' }}  >Update</Button>
+import React,{useState,useEffect} from 'react'
+import { Box,FormControl,FormLabel,OutlinedInput,Select,MenuItem,Button, CircularProgress } from '@mui/material'
+import { useDispatch,useSelector } from 'react-redux'
+import { getAppSettings,updateAppSettings } from '../../features/setting/actions/settingActions'
+import { getAppSettingsLoadingSelector,getAppSettingsSelector,updateAppSettingsLoadingSelector } from '../../features/setting/selectors/settingSelectors'
+import { showToast } from '../../features/toast/actions/toastAction'
+import { upload } from '@testing-library/user-event/dist/upload'
 
-    </Box>
- </Box> 
-  )
+
+function AppSetting() {
+const [appName, setAppName] = useState('')
+const [maintanceMode, setMaintanceMode] = useState(false)
+const [firebaseLegacyServerKey, setFirebaseLegacyServerKey] = useState('')
+const [appLink, setAppLink] = useState('')
+const [privacyPolicy, setPrivacyPolicy] = useState('')
+const loading = useSelector(getAppSettingsLoadingSelector)
+const appSettings = useSelector(getAppSettingsSelector)
+const updateLoading = useSelector(updateAppSettingsLoadingSelector)
+const dispatch = useDispatch()
+
+
+useEffect(() => {
+  dispatch(getAppSettings())
+}
+, [])
+
+useEffect(() => {
+  if(appSettings){
+    setAppName(appSettings.appName)
+    setMaintanceMode(appSettings.maintanceMode)
+    setFirebaseLegacyServerKey(appSettings.firebaseLegacyServerKey)
+    setAppLink(appSettings.appLink)
+    setPrivacyPolicy(appSettings.privacyPolicy)
+  }
+}
+,[appSettings])
+
+
+const handleUpdate = () => {
+
+
+  console.log(appName,maintanceMode,firebaseLegacyServerKey,appLink,privacyPolicy);
+  if(!appName === ''  || !firebaseLegacyServerKey === '' || !appLink === '' || !privacyPolicy === ''){
+    return dispatch(showToast('All fields are required','error'))
+  }
+
+  const data = {
+    appName,
+    maintanceMode,
+    firebaseLegacyServerKey,
+    appLink,
+    privacyPolicy
+  }
+
+  dispatch(updateAppSettings(appSettings._id,data))
 }
 
-export default appSetting
+  console.log(appSettings);
+
+
+  return (
+    <Box maxWidth={700}>
+    {
+      loading ?
+      <Box sx={{display:'flex',justifyContent:'center',alignItems:'center',height:400}} >
+        <CircularProgress />
+        </Box>
+      :
+      <Box>
+          <FormControl fullWidth>
+        <FormLabel sx={{ mb: 1, mt: 2 }}>App Name</FormLabel>
+        <OutlinedInput value={appName ?? '' } onChange={(e) => setAppName(e.target.value)} />
+      </FormControl>
+      <FormControl fullWidth>
+        <FormLabel sx={{ mb: 1, mt: 2 }}>Maintenance Mode</FormLabel>
+        <Select value={maintanceMode ?? false} onChange={(e) => setMaintanceMode(e.target.value)}>
+          <MenuItem value={true}>On</MenuItem>
+          <MenuItem value={false}>Off</MenuItem>
+        </Select>
+      </FormControl>
+      <FormControl fullWidth>
+        <FormLabel sx={{ mb: 1, mt: 2 }}>Firebase Legacy Server Key</FormLabel>
+        <OutlinedInput value={firebaseLegacyServerKey ?? ''} onChange={(e) => setFirebaseLegacyServerKey(e.target.value)} />
+      </FormControl>
+      <FormControl fullWidth>
+        <FormLabel sx={{ mb: 1, mt: 2 }}>App Link</FormLabel>
+        <OutlinedInput value={appLink ?? ''} onChange={(e) => setAppLink(e.target.value)} />
+      </FormControl>
+      <FormControl fullWidth>
+        <FormLabel sx={{ mb: 1, mt: 2 }}>Privacy Policy</FormLabel>
+        <textarea
+          aria-label="empty textarea"
+          placeholder="Empty"
+          style={{ maxWidth: '100%' }}
+          value={privacyPolicy ?? ''}
+          onChange={(e) => setPrivacyPolicy(e.target.value)}
+        />
+      </FormControl>
+      <Box sx={{ my: 2, textAlign: 'center' }}>
+{
+  updateLoading ? <CircularProgress /> : <Button onClick={handleUpdate} variant="contained" color="primary">Update</Button>
+}
+      </Box>
+        </Box>
+    }
+    </Box>
+  );
+}
+
+export default AppSetting

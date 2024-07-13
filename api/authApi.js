@@ -6,7 +6,15 @@ export const loginUser = async (username, password,dispatch) => {
         const response = await axiosInstance.post('/dashboard/auth/login', { username, password });
         return response.data;
     } catch (error) {
-        console.log(error.response);
-        dispatch(showToast(error.response.data.message, 'error'));
+        dispatch(showToast(error.response.data.message || error.message , 'error'));
+    }
+}
+
+export const PasswordChange = async (data,dispatch) => {
+    try {
+        const response = await axiosInstance.put('/dashboard/auth/change-password', data);
+        return response.data;
+    } catch (error) {
+        dispatch(showToast(error.response.data.message || error.message , 'error'));
     }
 }

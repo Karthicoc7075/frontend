@@ -1,34 +1,50 @@
 import React, { useState } from 'react'
-import { Box, Card, Container, Typography, FormControl,Button,IconButton, alpha, OutlinedInput} from '@mui/material'
+import { Box, Card, Container, Typography, FormControl,Button,IconButton, alpha, OutlinedInput, CircularProgress} from '@mui/material'
 import uploadFileImage from '../../assets/icons/upload-.png'
 import { Close } from '@mui/icons-material';
+import { useDispatch, useSelector } from 'react-redux';
+import {showToast} from '../../features/toast/actions/toastAction'
+import { createCategory } from '../../features/category/actions/categoryActions'
+import { loadingSelector } from '../../features/category/selectors/categorySelectors'
 
 export default function CreateCategory() {
-    const [categoryName,setCategoryName] = useState('')
-    const [selectedImage, setSelectedImage] = React.useState(null);
+    const [categoryName, setCategoryName] = useState('')
+    const [image, setImage] = useState(null)
+    const [selectedImage, setSelectedImage] = useState(null);
+    const loading = useSelector(loadingSelector)
+
+    const dispatch = useDispatch()
 
     const handleImageChange = (e) => {
-        const file = e.target.files[0];
+        const imageFile = e.target.files[0];
 
-        
+           
 
-        if (file) {
+        if (imageFile) {
+            console.log(imageFile);
+            setImage(imageFile)
             const reader = new FileReader();
             reader.onloadend = () => {
                 setSelectedImage(reader.result);
             };
-            reader.readAsDataURL(file);
+            reader.readAsDataURL(imageFile);
         }
     };
-
     const submitHandle = () =>{
+        if(!categoryName || !selectedImage){
+            dispatch(showToast('Please fill all fields','error'))
+            return
+        }
     
         let formData = new FormData()
       
         formData.append('categoryName',categoryName)
-        formData.append('file',selectedImage)
+        formData.append('file',image)
     
-        console.log(...formData);
+        dispatch(createCategory(formData))
+        setCategoryName('')
+        setSelectedImage(null)
+        setImage(null)
     }
     
 
@@ -143,7 +159,12 @@ export default function CreateCategory() {
                     )}
                 </Box>
 
-                <Box textAlign={'center'}>
+                {loading ? 
+                           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }} >
+                                <CircularProgress />
+                            </Box>
+                           : 
+                           <Box textAlign={'center'}>
                <Button onClick={()=>submitHandle()} variant='contained'  sx={{
                     mt:2,
                     background:theme => theme.palette.common.black,
@@ -152,8 +173,10 @@ export default function CreateCategory() {
                         background:theme => theme.palette.common.black,
                         opacity:.8
                     }
-                }} >Create</Button>
+                }} >Create</Button> 
+            
                </Box>
+            }
             </FormControl>
         </Card>
     </Box>

@@ -1,36 +1,67 @@
-import React, { useState } from 'react'
+import React, { useState,useEffect } from 'react'
 import { Container, Grid, Typography, Card, Button, Box, CircularProgress, FormControlLabel, Switch } from '@mui/material'
 import { Link } from 'react-router-dom'
 import Model from '../../components/model/model'
 import { Table, TableHead, TableRow, TableCell, TableBody, Paper, TableContainer } from '@mui/material'
-import image from '../../assets/icons/product_1.jpg'
-
-const newsData = [
-  {
-    image: image,
-    title: 'Class 12',
-    views: 1000,
-    status: false
-  },
-  {
-    image: image,
-    title: 'Class 11',
-
-    views: 1000,
-    status: true
-  }]
-
+import { useDispatch,useSelector } from 'react-redux'
+import { getAllNews,deleteNews,updateNewsStatus } from '../../features/news/actions/newsActions'
+import { getAllNewsSelector,deleteLoadingSelector,loadingSelector } from '../../features/news/selectors/newsSelectors'
+import { showToast } from '../../features/toast/actions/toastAction'
+import DeleteModel from '../../components/model/deleteModel'
 export default function ViewNews() {
   const [showModel, setShowModel] = useState(false)
+  const newsData = useSelector(getAllNewsSelector)
+  const [deleteId, setDeleteId] = useState('')
+  const [materialId, setMaterialId] = useState(null)
+  const loading = useSelector(loadingSelector)
+  const deleteLoading = useSelector(deleteLoadingSelector)
+  const dispatch = useDispatch()
+
+
+  useEffect(()=>{
+if(newsData.length === 0){
+  dispatch(getAllNews())
+}
+  },[])
+
+
+  useEffect(() => {
+    if(materialId){
+      dispatch(updateNewsStatus(materialId))
+      setMaterialId(null)
+    }
+  }, [materialId])
+
+
+useEffect(()=>{
+setShowModel(false)
+},[deleteLoading])
+
+
+const deleteHandle = () =>{
+dispatch(deleteNews(deleteId))
+setDeleteId('')
+}
+
 
   return (
     <Container maxWidth="xl"   >
-      {showModel && <Model setShowModel={setShowModel} />}
+      <DeleteModel 
+           showModel={showModel}
+            setShowModel={setShowModel}
+            deleteHandle={deleteHandle}
+            data='News'
+            loading={deleteLoading}
+           />
       <Box sx={{ display: 'flex', my: 2 }}>
         <Typography variant='h5' sx={{ flexGrow: 1 }} >News</Typography>
         <Button component={Link} to='/news/create' variant='contained' sx={{ p: 1.2, bgcolor: 'linear-gradient(90deg, #2979ff 0%, #2979ff 100%)' }}   >ADD NEWS</Button>
       </Box>
       <Card>
+      {
+            loading ? <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '40vh' }} >
+                <CircularProgress />
+            </Box> :
         <TableContainer component={Paper} style={{ overflowX: 'auto' }}>
 
           <Table aria-label="simple table">
@@ -45,12 +76,13 @@ export default function ViewNews() {
             </TableHead>
             <TableBody>
               {newsData.map((item, index) => (
-                <NewsItem key={index} item={item} setShowModel={setShowModel} />
+                <NewsItem key={index} item={item} setShowModel={setShowModel} setDeleteId={setDeleteId} setMaterialId={setMaterialId} />
               ))}
 
             </TableBody>
           </Table>
         </TableContainer>
+}
       </Card>
     </Container>
   )
@@ -61,8 +93,19 @@ export default function ViewNews() {
 
 
 
-function NewsItem({ item, setShowModel }) {
+function NewsItem({ item, setShowModel,setDeleteId,setMaterialId }) {
   const [loader, setLoader] = useState(true)
+
+
+  const deleteButtonClick =()=>{
+    setDeleteId(item._id)
+    setShowModel(true)
+  }
+
+
+  const changeHandler = () => {
+    setMaterialId(item._id)
+  }
   return (
     <TableRow>
       <TableCell component="th" scope="row" sx={{ pl: 4 }} >
@@ -71,13 +114,13 @@ function NewsItem({ item, setShowModel }) {
       <TableCell align="center" sx={{ paddingInline: '7rem' }}>{item.title}</TableCell>
       <TableCell align="center" sx={{ paddingInline: '7rem' }}>{item.views}</TableCell>
       <TableCell align="center" sx={{ paddingInline: '7rem' }}>
-        <Switch checked={item.status} />
+        <Switch   defaultChecked={item.status} onChange={()=>changeHandler()} />
       </TableCell>
-      <TableCell align="right" fullWidth sx={{ pr: 2 }}  >
+      <TableCell align="right" sx={{ pr: 2 }}  >
         <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }} >
 
-          <Button component={Link} to='/news/update' variant='contained' sx={{ bgcolor: 'linear-gradient(90deg, #ff1744 0%, #ff1744 100%)', p: 1.2 }}  >Edit</Button>
-          <Button variant='contained' sx={{ bgcolor: 'linear-gradient(90deg, #ff1744 0%, #ff1744 100%)', p: 1.2 }} onClick={() => setShowModel(true)} >Delete</Button>
+          <Button component={Link} to={`/news/update/${item._id}`} variant='contained' sx={{ bgcolor: 'linear-gradient(90deg, #ff1744 0%, #ff1744 100%)', p: 1.2 }}  >Edit</Button>
+          <Button variant='contained' sx={{ bgcolor: 'linear-gradient(90deg, #ff1744 0%, #ff1744 100%)', p: 1.2 }} onClick={() =>deleteButtonClick()} >Delete</Button>
         </Box>
 
       </TableCell>

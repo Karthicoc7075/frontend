@@ -1,74 +1,175 @@
-import { Container, Typography, Box, Card, Button, TableContainer } from '@mui/material'
-import React, { useState } from 'react'
-import { Table, TableHead, TableRow, TableCell, TableBody, Paper } from '@mui/material'
-import image from '../../assets/icons/product_1.jpg'
-import { Link } from 'react-router-dom'
-import Model from '../../components/model/model'
-
-
-const classSubjects = [
-    {
-        image: image,
-        className: 'Class 12',
-    },
-    {
-        image: image,
-        className: 'Class 11',
-    }
-]
+import {
+  Container,
+  Typography,
+  Box,
+  Card,
+  Button,
+  TableContainer,
+  CircularProgress,
+} from "@mui/material";
+import React, { useEffect, useState } from "react";
+import {
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Paper,
+} from "@mui/material";
+import { Link, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  classSubjectsSelector,
+  loadingSelector,
+  deleteLoadingSelector
+} from "../../features/class/selectors/classSelector";
+import { getManageClass,deleteClassSubject } from "../../features/class/actions/classActions";
+import DeleteModel from "../../components/model/deleteModel";
 
 export default function ManageClass() {
-  const [showModel, setShowModel] = useState(false)
+  const [showModel, setShowModel] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
+  const classId = useParams().classId;
+  const classSubjects = useSelector(classSubjectsSelector);
+  const loading = useSelector(loadingSelector);
+  const deleteLoading = useSelector(deleteLoadingSelector);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+   
+ 
+      dispatch(getManageClass(classId));
+  
+     
+  }, []);
+
+
+  useEffect(() => {
+    setShowModel(false);
+  }, [classSubjects]);
+
+  const deleteHandle = () => {
+    dispatch(deleteClassSubject(classId,deleteId));
+    setDeleteId(null);
+  }
   return (
-    <Container maxWidth='lg' >
-      {showModel && <Model setShowModel={setShowModel} />}
-
-      <Box sx={{ mb: 2, textAlign: 'end' }}>
-        <Button component={Link} to='/class/subject/create' variant='contained' sx={{ p: 1.2, bgcolor: 'linear-gradient(90deg, #2979ff 0%, #2979ff 100%)' }}   >ADD CLASS</Button>
+    <Container maxWidth="lg">
+      <DeleteModel
+        showModel={showModel}
+      setShowModel={setShowModel}
+      deleteHandle={deleteHandle}
+      data="Class Subject"
+      loading={deleteLoading}
+      />
+      <Box sx={{ mb: 2, textAlign: "end" }}>
+        <Button
+          component={Link}
+          to={`/class/${classId}/subject/create`}
+          variant="contained"
+          sx={{
+            p: 1.2,
+            bgcolor: "linear-gradient(90deg, #2979ff 0%, #2979ff 100%)",
+          }}
+        >
+          ADD CLASS
+        </Button>
       </Box>
-      {/* <Card sx={{display:'grid',placeItems:'center',p:4,height:'70dvh',boxShadow:theme=>theme.shadows[4]}} >
-           <Box textAlign={'center'} >
-           <Typography variant='h4' >No Subject Found</Typography>
-            <Typography variant='p' color={'text.disabled'} >Add new subject first</Typography>
-           </Box>
-        </Card> */}
+
       <Card>
-        <TableContainer component={Paper} style={{ overflowX: 'auto' }}>
-
-          <Table aria-label="simple table">
-            <TableHead >
-              <TableRow >
-                <TableCell align='center' sx={{  fontWeight: 'fontWeightSemiBold' }}>Image</TableCell>
-                <TableCell align="center" sx={{ fontWeight: 'fontWeightSemiBold' }}>Subject Name</TableCell>
-                <TableCell align="center" sx={{  fontWeight: 'fontWeightSemiBold' }}>Option</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-            {
-                classSubjects.map((item, index) => (
-                     <SubjectItem key={index} item={item} setShowModel={setShowModel} />
-                ))
-            }
-
-            </TableBody>
-          </Table>
-        </TableContainer>
+        {loading ? (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "60vh",
+            }}
+          >
+            <CircularProgress />
+          </Box>
+        ) : (
+          <Box>
+            {classSubjects.length > 0 ? (
+              <TableContainer component={Paper}>
+                <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell align="center">Image</TableCell>
+                      <TableCell align="center">Subject Name</TableCell>
+                      <TableCell align="center">Action</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {classSubjects.map((item, index) => (
+                      <SubjectItem
+                        key={index}
+                        item={item}
+                        setShowModel={setShowModel}
+                        setDeleteId={setDeleteId}
+                      />
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            ) : (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  p: 2,
+                  height: "200px",
+                }}
+              >
+                <Typography variant="h5">No Class subject Found</Typography>
+              </Box>
+            )}
+          </Box>
+        )}
       </Card>
     </Container>
-  )
+  );
 }
 
+function SubjectItem({ item, setShowModel,setDeleteId }) {
+  const [loader, setLoader] = useState(true);
 
-function SubjectItem({ item, setShowModel }) {
+
+  const deleteButtonClick=()=>{
+    setShowModel(true)
+    setDeleteId(item._id)
+  }
   return (
-    <TableRow >
-      <TableCell  align='center' >
-        <Box component={'img'} src={item.image}  sx={{ width: '140px', height: '80px', objectFit: 'cover',borderRadius:1 }} ></Box>
+    <TableRow>
+      <TableCell align="center" sx={{display:'flex',justifyContent:'center'}}>
+        {loader && <CircularProgress />}
+        <Box
+          component={"img"}
+          src={item.image}
+          onLoad={() => setLoader(false)}
+          sx={{
+            display: loader ? "none" : "flex",
+            width: "140px",
+            height: "80px",
+            objectFit: "cover",
+            borderRadius: 1,
+          }}
+        />
+
       </TableCell>
-      <TableCell align="center">{item.className}</TableCell>
-      <TableCell align="center"  >
-      <Button component={Link} variant='contained' sx={{ bgcolor: 'linear-gradient(90deg, #2979ff 0%, #2979ff 100%)', p: 1.2 }} >Delete</Button>
+      <TableCell align="center">{item.subjectName}</TableCell>
+      <TableCell align="center">
+        <Button
+          variant="contained"
+          sx={{
+            bgcolor: "linear-gradient(90deg, #2979ff 0%, #2979ff 100%)",
+            p: 1.2,
+          }}
+          onClick={deleteButtonClick}
+        >
+          Delete
+        </Button>
       </TableCell>
     </TableRow>
-  )
+  );
 }

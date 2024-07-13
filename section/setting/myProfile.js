@@ -1,12 +1,29 @@
-import React from 'react'
+import React, { useEffect,useState } from 'react'
 import { Box,FormControl,FormLabel,OutlinedInput,Button } from '@mui/material'
+import { useSelector } from 'react-redux'
+import {getAuthSelector} from '../../features/auth/selectors/authSelector'
 
-function myProfile() {
+function MyProfile() {
+  const [username, setUsername] = useState('')
+  const [oldPassword, setOldPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+
+  const getUser = useSelector(getAuthSelector)
+
+console.log(getUser);
+  useEffect(() => {
+   if(getUser){
+     setUsername(getUser.user.username)
+   }
+  }, [getUser])
+
   return (
     <Box  maxWidth={700} width={'100%'}>
     <FormControl fullWidth>
-    <FormLabel sx={{mb:1,mt:2}} >User Name</FormLabel>
-    <OutlinedInput />
+    <FormLabel sx={{mb:1,mt:2}}  >User Name</FormLabel>
+    <OutlinedInput
+    value={username ?? ''}
+    />
     </FormControl>
     <FormControl fullWidth>
     <FormLabel  sx={{mb:1,mt:2}} >Old Password</FormLabel>
@@ -24,4 +41,4 @@ function myProfile() {
   )
 }
 
-export default myProfile
+export default MyProfile

@@ -1,11 +1,19 @@
 import React, { useState } from 'react'
-import { Box, Card, Container, Typography, FormControl,Button,IconButton, alpha, OutlinedInput} from '@mui/material'
+import { Box, Card, Container, Typography, FormControl,Button,IconButton, alpha, OutlinedInput, CircularProgress} from '@mui/material'
 import uploadFileImage from '../../assets/icons/upload-.png'
 import { Close } from '@mui/icons-material';
+import { useSelector,useDispatch } from 'react-redux';
+import { createMedium } from '../../features/medium/actions/mediumActions';
+import { loadingSelector } from '../../features/medium/selectors/mediumSelectors'
+import { showToast } from '../../features/toast/actions/toastAction';
 
 export default function CreateMedium() {
     const [mediumName,setMediumName] = useState('')
     const [selectedImage, setSelectedImage] = React.useState(null);
+    const [image, setImage] = React.useState(null);
+    const loading = useSelector(loadingSelector)
+    const dispatch = useDispatch()
+
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -13,6 +21,7 @@ export default function CreateMedium() {
         
 
         if (file) {
+            setImage(file);
             const reader = new FileReader();
             reader.onloadend = () => {
                 setSelectedImage(reader.result);
@@ -22,13 +31,20 @@ export default function CreateMedium() {
     };
 
     const submitHandle = () =>{
-    
+
+    if(!mediumName || !image){
+        dispatch(showToast('Please fill all the fields','error'))
+        return
+    }
         let formData = new FormData()
       
         formData.append('mediumName',mediumName)
-        formData.append('file',selectedImage)
+        formData.append('file',image)
     
-        console.log(...formData);
+        dispatch(createMedium(formData))
+        setMediumName('')
+        setSelectedImage(null)
+        setImage(null)
     }
     
 
@@ -143,8 +159,11 @@ export default function CreateMedium() {
                     )}
                 </Box>
 
-                <Box textAlign={'center'}>
-               <Button onClick={()=>submitHandle()} variant='contained'  sx={{
+                <Box sx={{mt:2,textAlign:'center'}}>
+               {
+                loading ?
+                <CircularProgress/>:
+                <Button onClick={()=>submitHandle()} variant='contained'  sx={{
                     mt:2,
                     background:theme => theme.palette.common.black,
                     width:'120px',
@@ -153,6 +172,7 @@ export default function CreateMedium() {
                         opacity:.8
                     }
                 }} >Create</Button>
+               }
                </Box>
             </FormControl>
         </Card>

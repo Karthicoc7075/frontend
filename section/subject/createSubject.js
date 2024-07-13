@@ -1,11 +1,18 @@
 import React, { useState } from 'react'
-import { Box, Card, Container, Typography, FormControl,Button,IconButton, alpha, OutlinedInput} from '@mui/material'
+import { Box, Card, Container, Typography, FormControl,Button,IconButton, alpha, OutlinedInput, CircularProgress} from '@mui/material'
 import uploadFileImage from '../../assets/icons/upload-.png'
-import { Close } from '@mui/icons-material';
+import { Circle, Close } from '@mui/icons-material';
+import { useDispatch,useSelector } from 'react-redux';
+import {createSubject} from '../../features/subject/actions/subjectActions'
+import { showToast } from '../../features/toast/actions/toastAction';
+import { loadingSelector } from '../../features/subject/selectors/subjectSelectors';
 
 export default function CreateSubject() {
     const [subjectName,setSubjectName] = useState('')
     const [selectedImage, setSelectedImage] = React.useState(null);
+    const [image, setImage] = useState(null);
+    const dispatch = useDispatch()
+    const loading = useSelector(loadingSelector)
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -13,6 +20,7 @@ export default function CreateSubject() {
         
 
         if (file) {
+            setImage(file);
             const reader = new FileReader();
             reader.onloadend = () => {
                 setSelectedImage(reader.result);
@@ -22,13 +30,19 @@ export default function CreateSubject() {
     };
 
     const submitHandle = () =>{
-    
+    if(!subjectName || !selectedImage){
+        dispatch(showToast('Please fill all the fields', 'error'))
+        return
+    }
         let formData = new FormData()
       
         formData.append('subjectName',subjectName)
-        formData.append('file',selectedImage)
+        formData.append('file',image)
     
-        console.log(...formData);
+        dispatch(createSubject(formData))
+        setSubjectName('')
+        setSelectedImage(null)
+        setImage(null)
     }
     
 
@@ -140,16 +154,13 @@ export default function CreateSubject() {
                     )}
                 </Box>
 
-                <Box textAlign={'center'}>
-               <Button onClick={()=>submitHandle()} variant='contained'  sx={{
-                    mt:2,
-                    background:theme => theme.palette.common.black,
-                    width:'120px',
-                    ':hover':{
-                        background:theme => theme.palette.common.black,
-                        opacity:.8
-                    }
-                }} >Create</Button>
+                <Box sx={{mt:2,textAlign:'center'}}>
+               {
+                loading ?
+                <CircularProgress/>
+                :
+                <Button variant='contained' sx={{ p: 1.2, bgcolor: 'linear-gradient(90deg, #2979ff 0%, #2979ff 100%)' }} onClick={submitHandle}>Create</Button>
+               }
                </Box>
             </FormControl>
         </Card>

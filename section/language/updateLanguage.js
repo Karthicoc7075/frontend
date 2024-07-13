@@ -1,11 +1,37 @@
-import React, { useState } from 'react'
-import { Box, Card, Container, Typography, FormControl,Button,IconButton, alpha, OutlinedInput } from '@mui/material'
+import React, { useState,useEffect } from 'react'
+import { Box, Card, Container, Typography, FormControl,Button,IconButton, alpha, OutlinedInput, CircularProgress } from '@mui/material'
 import uploadFileImage from '../../assets/icons/upload-.png'
 import { Close } from '@mui/icons-material';
+import { useSelector,useDispatch } from 'react-redux';
+import {showToast} from '../../features/toast/actions/toastAction'
+import { updateLanguage,getLanguage } from '../../features/language/actions/languageActions'
+import { loadingSelector,getLanguageSelector,updateLoadingSelector } from '../../features/language/selectors/languageSelectors'
+import { useParams } from 'react-router-dom';
 
 export default  function UpdateCategory() {
     const [languageName,setLanguageName] = useState('')
     const [selectedImage, setSelectedImage] = React.useState(null);
+    const [image, setImage] = useState(null)
+    const languageId = useParams().languageId
+    const dispatch = useDispatch()
+    const loading = useSelector(loadingSelector)
+    const updateLoading = useSelector(updateLoadingSelector)
+    const languageData = useSelector(getLanguageSelector)
+   
+
+    useEffect(()=>{
+        dispatch(getLanguage(languageId))
+    },[])
+
+
+    useEffect(()=>{
+        if(languageData){
+            setLanguageName(languageData.languageName)
+            setSelectedImage(languageData.image)
+            
+        }
+    },[languageData])
+
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -13,6 +39,7 @@ export default  function UpdateCategory() {
         
 
         if (file) {
+            setImage(file)
             const reader = new FileReader();
             reader.onloadend = () => {
                 setSelectedImage(reader.result);
@@ -24,15 +51,15 @@ export default  function UpdateCategory() {
 
 
 
-
 const submitHandle = () =>{
     
     let formData = new FormData()
   
     formData.append('languageName',languageName)
-    formData.append('file',selectedImage)
+    formData.append('file',image)
+    formData.append('imageId',languageData.image)
 
-    console.log(...formData);
+    dispatch(updateLanguage(languageId,formData))
 }
 
 
@@ -44,7 +71,9 @@ const submitHandle = () =>{
             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }} >
 
                 <Card sx={{ py: 2, px: 3, maxWidth: '860px', width: '100%' }} >
-
+                {loading ? <Box sx={{display:'flex',justifyContent:'center',alignItems:'center',height:'580px'}} >
+                        <CircularProgress />
+                    </Box>:
                     <FormControl  fullWidth  >
                         <Typography variant='subtitle1' sx={{ color: 'text.secondary', fontWeight: 'fontWeightSemiBold', mb: 1 }}>Language Name</Typography>
                         <OutlinedInput
@@ -145,7 +174,8 @@ const submitHandle = () =>{
                         </Box>
 
                         <Box textAlign={'center'}>
-                       <Button onClick={()=>submitHandle()} variant='contained'  sx={{
+                        {
+                                updateLoading ? <CircularProgress sx={{m:2}} /> : <Button onClick={()=>submitHandle()} variant='contained'  sx={{
                             mt:2,
                             background:theme => theme.palette.common.black,
                             width:'120px',
@@ -153,9 +183,10 @@ const submitHandle = () =>{
                                 background:theme => theme.palette.common.black,
                                 opacity:.8
                             }
-                        }} >Update</Button>
+                        }} >Update</Button> }
                        </Box>
                     </FormControl>
+}
                 </Card>
             </Box>
         </Container>

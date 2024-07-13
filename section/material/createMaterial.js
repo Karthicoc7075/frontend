@@ -1,8 +1,17 @@
-import React, { useState } from 'react'
-import { Box, Card, Container, Typography, FormControl, Button, IconButton, alpha, OutlinedInput, Select, MenuItem, NativeSelect } from '@mui/material'
+import React, { useEffect, useState } from 'react'
+import { Box, Card, Container, Typography, FormControl, Button, IconButton, alpha, OutlinedInput, Select, MenuItem, NativeSelect, CircularProgress } from '@mui/material'
 import uploadFileImage from '../../assets/icons/upload-.png'
 import uploadFile from '../../assets/icons/file-upload.png'
 import { Close } from '@mui/icons-material';
+import { useSelector,useDispatch } from 'react-redux';
+import { createMaterial } from '../../features/material/actions/materialActions';
+import { loadingSelector} from '../../features/material/selectors/materialSelectors'
+import { getAllClasses,getManageClass} from '../../features/class/actions/classActions';
+import {getAllMediums} from '../../features/medium/actions/mediumActions'
+import { getAllClassesSelector,classSubjectsSelector } from '../../features/class/selectors/classSelector';
+import { getAllMediumsSelector } from '../../features/medium/selectors/mediumSelectors'
+import { showToast } from '../../features/toast/actions/toastAction';
+
 
 export default  function CreateMaterial() {
     const [title, setTitle] = useState('')
@@ -10,8 +19,49 @@ export default  function CreateMaterial() {
     const [subjectId, SetSubjectId] = useState('')
     const [mediumId, setMediumId] = useState('')
     const [selectedImage, setSelectedImage] = React.useState(null);
-    const [fileType, setFileType] = useState('')
+    const [image,setImage] = React.useState(null)
+    const [fileType, setFileType] = useState('uploadFile')
+    const [link, setLink] = useState('')
     const [selectedFile, setSelectedFile] = useState(null)
+    const classes = useSelector(getAllClassesSelector)
+    const mediums = useSelector(getAllMediumsSelector)
+    const classSubjects = useSelector(classSubjectsSelector)
+    const loading = useSelector(loadingSelector)
+
+
+
+    const dispatch = useDispatch()
+
+
+
+    useEffect(() => {
+        dispatch(getAllClasses())
+        dispatch(getAllMediums())
+    }, [])
+
+
+    useEffect(()=>{
+        if(classId){
+            dispatch(getManageClass(classId))
+        }
+    },[classId])
+
+
+    useEffect(()=>{
+        if(!loading){
+            setTitle('')
+            setClassId('')
+            SetSubjectId('')
+            setMediumId('')
+            setFileType('uploadFile')
+            setLink('')
+            setSelectedFile(null)
+            setSelectedImage(null)
+            setImage(null)
+        }
+    },[loading])
+
+
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -19,6 +69,7 @@ export default  function CreateMaterial() {
 
 
         if (file) {
+            setImage(file);
             const reader = new FileReader();
             reader.onloadend = () => {
                 setSelectedImage(reader.result);
@@ -33,13 +84,34 @@ export default  function CreateMaterial() {
     }
 
     const submitHandle = () => {
+        if(!title || !classId || !subjectId || !mediumId || !image || !fileType){
+            dispatch(showToast('Please fill all the fields','error'))
+            return
+        }
+
+        if(fileType === 'linkFile' && !link){
+            dispatch(showToast('Please fill all the fields','error'))
+            return
+        }
+        if(fileType === 'uploadFile' && !selectedFile){
+            dispatch(showToast('Please fill all the fields','error'))
+            return
+        }
 
         let formData = new FormData()
 
         formData.append('title', title)
-        formData.append('file', selectedImage)
+        formData.append('classId', classId)
+        formData.append('subjectId', subjectId)
+        formData.append('mediumId', mediumId)
+        formData.append('fileType', fileType)
+        formData.append('fileLink', link)
+        formData.append('file', selectedFile)
+        formData.append('image', image)
 
-        console.log(...formData);
+
+
+        dispatch(createMaterial(formData))
     }
 
 
@@ -66,49 +138,58 @@ export default  function CreateMaterial() {
                     <FormControl fullWidth >
                         <Box >
                             <Typography variant='subtitle1' sx={{ color: 'text.secondary', fontWeight: 'fontWeightSemiBold', mb: 1, mt: 2 }}>Class</Typography>
-                            <Select fullWidth onChange={(e) => setClassId(e.target.value)} >
-                                <MenuItem value={10}>Tamil</MenuItem>
-                                <MenuItem value={20}>English</MenuItem>
-                                <MenuItem value={30}>Computer science</MenuItem>
+                            <Select fullWidth value={classId} onChange={(e) => setClassId(e.target.value)} >
+                               {
+                                      classes.map((item,index)=>(
+                                        <MenuItem key={index} value={item._id}>{item.className}</MenuItem>
+                                      ))
+                               }
                             </Select>
                         </Box>
                     </FormControl>
                     <FormControl fullWidth>
                         <Box >
                             <Typography variant='subtitle1' sx={{ color: 'text.secondary', fontWeight: 'fontWeightSemiBold', mb: 1, mt: 2  }}>Subject</Typography>
-                            <Select fullWidth disabled={classId ? false : true}>
-                                <MenuItem value={10}>Tamil</MenuItem>
-                                <MenuItem value={20}>English</MenuItem>
-                                <MenuItem value={30}>Computer science</MenuItem>
+                            <Select fullWidth value={subjectId}  disabled={classId ? false : true} onChange={(e)=>SetSubjectId(e.target.value)} >
+                                {
+                                   classSubjects.length ==0 ?
+                                   <MenuItem value=''>No Subject Found</MenuItem>
+                                   :
+                                    classSubjects.map((item,index)=>(
+                                        <MenuItem key={index} value={item._id}>{item.subjectName}</MenuItem>
+                                   ))
+                                }
                             </Select>
                         </Box>
                     </FormControl>
                     <FormControl fullWidth>
                         <Box >
                             <Typography variant='subtitle1' sx={{ color: 'text.secondary', fontWeight: 'fontWeightSemiBold', mb: 1, mt: 2  }}>Medium</Typography>
-                            <Select fullWidth >
-                                <MenuItem value={10}>Tamil</MenuItem>
-                                <MenuItem value={20}>English</MenuItem>
-                                <MenuItem value={30}>Computer science</MenuItem>
+                            <Select fullWidth value={mediumId} onChange={(e)=>setMediumId(e.target.value)}  >
+                              {
+                                    mediums.map((item,index)=>(
+                                        <MenuItem key={index} value={item._id}>{item.mediumName}</MenuItem>
+                                    ))
+                              }
                             </Select>
                         </Box>
                     </FormControl>
                     <FormControl fullWidth >
                         <Box >
                             <Typography variant='subtitle1' sx={{ color: 'text.secondary', fontWeight: 'fontWeightSemiBold', mb: 1, mt: 2  }}>File Type</Typography>
-                            <Select defaultValue={'UploadFile'} fullWidth onChange={(e) => setFileType(e.target.value)} >
-                                <MenuItem value={'UploadFile'}>File Type</MenuItem>
-                                <MenuItem value={'LinkFile'}>Link Type</MenuItem>
+                            <Select value={fileType ?? ''} fullWidth onChange={(e) => setFileType(e.target.value)} >
+                                <MenuItem value={'uploadFile'}>Upload File</MenuItem>
+                                <MenuItem value={'linkFile'}>Link File</MenuItem>
 
                             </Select>
                         </Box>
                     </FormControl>
                     <FormControl fullWidth >
                         {
-                            fileType === 'LinkFile' ?
+                            fileType == 'linkFile' ?
                                 <Box  >
                                     <Typography variant='subtitle1' sx={{ color: 'text.secondary', fontWeight: 'fontWeightSemiBold', mb: 1, mt: 2  }}>File Link</Typography>
-                                    <OutlinedInput placeholder='File link' fullWidth />
+                                    <OutlinedInput placeholder='File link' fullWidth onChange={(e)=>setLink(e.target.value)} />
                                 </Box> :
                                 <Box>
                                     <Typography variant='subtitle1' sx={{ color: 'text.secondary', fontWeight: 'fontWeightSemiBold', mb: 1, mt: 2  }}>Upload File</Typography>
@@ -296,7 +377,10 @@ export default  function CreateMaterial() {
                             </Box>
                         </Box>
 
-                        <Box textAlign={'center'}>
+                        <Box sx={{mt:2,textAlign:'center'}}>
+                           {
+                            loading ?
+                            <CircularProgress/>:
                             <Button onClick={() => submitHandle()} variant='contained' sx={{
                                 mt: 2,
                                 background: theme => theme.palette.common.black,
@@ -306,6 +390,7 @@ export default  function CreateMaterial() {
                                     opacity: .8
                                 }
                             }} >Create</Button>
+                           }
                         </Box>
                     </FormControl>
                 </Card>

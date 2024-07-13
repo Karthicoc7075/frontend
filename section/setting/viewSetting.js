@@ -54,7 +54,7 @@ import {
                   backgroundColor: "#fff",
                   height: "100%",
                   borderRadius: 1,
-                  m: 0.1,
+                  m: 0.3,
                   boxShadow: (theme) => theme.shadows[4],
                   transition: "all .6s ease",
                   zIndex: 2,

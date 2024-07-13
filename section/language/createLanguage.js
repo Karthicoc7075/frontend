@@ -1,11 +1,19 @@
 import React, { useState } from 'react'
-import { Box, Card, Container, Typography, FormControl,Button,IconButton, alpha, OutlinedInput} from '@mui/material'
+import { Box, Card, Container, Typography, FormControl,Button,IconButton, alpha, OutlinedInput, CircularProgress} from '@mui/material'
 import uploadFileImage from '../../assets/icons/upload-.png'
 import { Close } from '@mui/icons-material';
+import { useDispatch, useSelector } from 'react-redux';
+import {showToast} from '../../features/toast/actions/toastAction'
+import { createLanguage } from '../../features/language/actions/languageActions'
+import { loadingSelector } from '../../features/language/selectors/languageSelectors'
 
 export default function CreateLanguage() {
     const [languageName,setLanguageName] = useState('')
     const [selectedImage, setSelectedImage] = React.useState(null);
+    const [image, setImage] = useState(null)
+    const loading = useSelector(loadingSelector)
+    const dispatch = useDispatch()
+
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -13,6 +21,7 @@ export default function CreateLanguage() {
         
 
         if (file) {
+            setImage(file)
             const reader = new FileReader();
             reader.onloadend = () => {
                 setSelectedImage(reader.result);
@@ -26,9 +35,13 @@ export default function CreateLanguage() {
         let formData = new FormData()
       
         formData.append('languageName',languageName)
-        formData.append('file',selectedImage)
-    
-        console.log(...formData);
+        formData.append('file',image)
+        
+        dispatch(createLanguage(formData))
+        setLanguageName('')
+        setSelectedImage(null)
+        setImage(null)
+        
     }
     
 
@@ -143,7 +156,12 @@ export default function CreateLanguage() {
                     )}
                 </Box>
 
-                <Box textAlign={'center'}>
+                {loading ? 
+                           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }} >
+                                <CircularProgress />
+                            </Box>
+                           : 
+                           <Box textAlign={'center'}>
                <Button onClick={()=>submitHandle()} variant='contained'  sx={{
                     mt:2,
                     background:theme => theme.palette.common.black,
@@ -152,8 +170,10 @@ export default function CreateLanguage() {
                         background:theme => theme.palette.common.black,
                         opacity:.8
                     }
-                }} >Create</Button>
+                }} >Create</Button> 
+            
                </Box>
+            }
             </FormControl>
         </Card>
     </Box>

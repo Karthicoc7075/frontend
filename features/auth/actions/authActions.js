@@ -1,5 +1,5 @@
 import * as actionTypes from '../constants/actionsTypes';
-import {loginUser} from '../../../api/authApi'
+import {loginUser,PasswordChange} from '../../../api/authApi'
 import {showToast} from '../../toast/actions/toastAction'
 
 export const login = (username, password) =>async(dispatch) =>{
@@ -12,7 +12,21 @@ export const login = (username, password) =>async(dispatch) =>{
         dispatch(showToast(response.message, 'success'))
     }
     catch(error){
+        console.log(error);
         dispatch({type:actionTypes.LOGIN_FAILURE, error})
+    }
+}
+
+export const passwordChange = (data) => async (dispatch) => {
+    dispatch({ type: actionTypes.PASSWORD_CHANGE_REQUEST });
+
+    try {
+        const response = await PasswordChange(data, dispatch);
+        const payload = response.data;
+        dispatch({ type: actionTypes.PASSWORD_CHANGE_SUCCESS,  });
+        dispatch(showToast(response.message, 'success'));
+    } catch (error) {
+        dispatch({ type: actionTypes.PASSWORD_CHANGE_FAILURE, error });
     }
 }
 

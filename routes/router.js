@@ -2,6 +2,8 @@ import { lazy, Suspense } from 'react';
 import { Outlet, Navigate, useRoutes } from 'react-router-dom';
 
 import DashboardLayout from '../layouts';
+import  {getAuthSelector} from '../features/auth/selectors/authSelector'
+import { useSelector } from 'react-redux';
 
 export const IndexPage = lazy(() => import('../pages/dashboard/dashboard'));
 export const ClassPage = lazy(() => import('../pages/class/ViewClass.js'));
@@ -38,6 +40,7 @@ export const NotificationPage = lazy(() => import('../pages/notification/notific
 export const CreateNotificationPage = lazy(() => import('../pages/notification/createNotification'))
 export const VersionPage = lazy(() => import('../pages/version/version.js'))
 export const CreateVersionPage = lazy(() => import('../pages/version/createVersion.js'))
+export const UpdateVersionPage = lazy(() => import('../pages/version/updateVersion.js'))
 export const SettingPage = lazy(() => import('../pages/setting/setting.js'))
 // export const BlogPage = lazy(() => import('src/pages/blog'));
 // export const UserPage = lazy(() => import('src/pages/user'));
@@ -45,9 +48,25 @@ export const LoginPage = lazy(() => import('../pages/login/login'));
 // export const ProductsPage = lazy(() => import('src/pages/products'));
 // export const Page404 = lazy(() => import('src/pages/page-not-found'));
 
-// ----------------------------------------------------------------------
 
+
+
+
+
+// ----------------------------------------------------------------------
 export default function Router() {
+  const auth = useSelector(getAuthSelector);
+  const isAuthenticated = () => {
+    if(auth.token && auth.isAuthenticated && auth.user){
+      return true
+    }
+    return false
+  }
+
+  const ProtectedRoute = ({ children }) => {
+    return isAuthenticated() ? children : <Navigate to="/login" />;
+  };
+
   const routes = useRoutes([
     {
       element: (
@@ -58,50 +77,47 @@ export default function Router() {
         </DashboardLayout>
       ),
       children: [
-        { element: <IndexPage />, index: true },
-        { path: 'class', element: <ClassPage /> },
-        { path: 'class/create', element: <CreateClassPage /> },
-        { path: 'class/update', element: <UpdateClassPage /> },
-        { path: 'class/manage-class', element: <ManageClassPage /> },
-        { path: 'class/subject/create', element: <CreateClassSubjectPage /> },
-        { path: 'subject', element: <SubjectPage /> },
-        { path: 'subject/create', element: <CreateSubjectPage /> },
-        { path: 'subject/update', element: <UpdateSubjectPage /> },
-        { path: 'material', element: <MaterialPage /> },
-        { path: 'material/create', element: <CreateMaterialPage /> },
-        { path: 'material/update', element: <UpdateMaterialPage /> },
-        { path: 'medium', element: <MediumPage /> },
-        { path: 'medium/create', element: <CreateMediumPage /> },
-        { path: 'medium/update', element: <UpdateMediumPage /> },
-        { path: 'category', element: <CategoryPage /> },
-        { path: 'category/create', element: <CreateCategoryPage /> },
-        { path: 'category/update', element: <UpdateCategoryPage /> },
-        { path: 'language', element: <LanguagePage /> },
-        { path: 'language/create', element: <CreateLanguagePage /> },
-        { path: 'language/update', element: <UpdateLanguagePage /> },
-        { path: 'news', element: <NewsPage /> },
-        { path: 'news/create', element: <CreateNewsPage /> },
-        { path: 'news/update', element: <UpdateNewsPage /> },
-        { path: 'slider', element: <SliderPage /> },
-        { path: 'slider/create', element: <CreateSliderPage/>},
-        { path: 'slider/update', element: <UpdateSliderPage/>},
-        { path: 'review', element: <ReviewPage /> },
-        { path: 'support', element: <SupportPage /> },
-        { path: 'report', element: <ReportPage /> },
-        { path: 'notification', element: <NotificationPage /> },
-        { path: 'notification/create', element: <CreateNotificationPage /> },
-        { path: 'version', element: <VersionPage /> },
-        { path: 'version/create', element: <CreateVersionPage /> },
-        { path: 'setting', element: <SettingPage /> },
-
-
-        // { path: 'products', element: <ProductsPage /> },
-        // { path: 'blog', element: <BlogPage /> },
+        { element:<ProtectedRoute><IndexPage /></ProtectedRoute>, index: true },
+        { path: 'class', element: <ProtectedRoute><ClassPage /></ProtectedRoute> },
+        { path: 'class/create', element: <ProtectedRoute><CreateClassPage /></ProtectedRoute> },
+        { path: 'class/update/:classId', element: <ProtectedRoute><UpdateClassPage /></ProtectedRoute> },
+        { path: 'class/manage-class/:classId', element: <ProtectedRoute><ManageClassPage /></ProtectedRoute> },
+        { path: 'class/:classId/subject/create', element: <ProtectedRoute><CreateClassSubjectPage /></ProtectedRoute> },
+        { path: 'subject', element: <ProtectedRoute><SubjectPage /></ProtectedRoute> },
+        { path: 'subject/create', element: <ProtectedRoute><CreateSubjectPage /></ProtectedRoute> },
+        { path: 'subject/update/:subjectId', element: <ProtectedRoute><UpdateSubjectPage /></ProtectedRoute> },
+        { path: 'material', element: <ProtectedRoute><MaterialPage /></ProtectedRoute> },
+        { path: 'material/create', element: <ProtectedRoute><CreateMaterialPage /></ProtectedRoute> },
+        { path: 'material/update/:materialId', element: <ProtectedRoute><UpdateMaterialPage /></ProtectedRoute> },
+        { path: 'medium', element: <ProtectedRoute><MediumPage /></ProtectedRoute> },
+        { path: 'medium/create', element: <ProtectedRoute><CreateMediumPage /></ProtectedRoute> },
+        { path: 'medium/update/:mediumId', element: <ProtectedRoute><UpdateMediumPage /></ProtectedRoute> },
+        { path: 'category', element: <ProtectedRoute><CategoryPage /></ProtectedRoute> },
+        { path: 'category/create', element: <ProtectedRoute><CreateCategoryPage /></ProtectedRoute> },
+        { path: 'category/update/:categoryId', element: <ProtectedRoute><UpdateCategoryPage /></ProtectedRoute> },
+        { path: 'language', element: <ProtectedRoute><LanguagePage /></ProtectedRoute> },
+        { path: 'language/create', element: <ProtectedRoute><CreateLanguagePage /></ProtectedRoute> },
+        { path: 'language/update/:languageId', element: <ProtectedRoute><UpdateLanguagePage /></ProtectedRoute> },
+        { path: 'news', element: <ProtectedRoute><NewsPage /></ProtectedRoute> },
+        { path: 'news/create', element: <ProtectedRoute><CreateNewsPage /></ProtectedRoute> },
+        { path: 'news/update/:newsId', element: <ProtectedRoute><UpdateNewsPage /></ProtectedRoute> },
+        { path: 'slider', element: <ProtectedRoute><SliderPage /></ProtectedRoute> },
+        { path: 'slider/create', element: <ProtectedRoute><CreateSliderPage /></ProtectedRoute> },
+        { path: 'slider/update/:sliderId', element: <ProtectedRoute><UpdateSliderPage /></ProtectedRoute> },
+        { path: 'review', element: <ProtectedRoute><ReviewPage /></ProtectedRoute> },
+        { path: 'support', element: <ProtectedRoute><SupportPage /></ProtectedRoute> },
+        { path: 'report', element: <ProtectedRoute><ReportPage /></ProtectedRoute> },
+        { path: 'notification', element: <ProtectedRoute><NotificationPage /></ProtectedRoute> },
+        { path: 'notification/create', element: <ProtectedRoute><CreateNotificationPage /></ProtectedRoute> },
+        { path: 'version', element: <ProtectedRoute><VersionPage /></ProtectedRoute> },
+        { path: 'version/create', element: <ProtectedRoute><ProtectedRoute><CreateVersionPage /></ProtectedRoute></ProtectedRoute> },
+        { path: 'version/update/:versionId', element: <ProtectedRoute><ProtectedRoute><UpdateVersionPage /></ProtectedRoute></ProtectedRoute>},
+        { path: 'setting', element: <ProtectedRoute><ProtectedRoute><SettingPage /></ProtectedRoute></ProtectedRoute> },
       ],
     },
     {
       path: 'login',
-      element: <LoginPage />,
+      element: isAuthenticated() ? <Navigate to="/" /> : <LoginPage />,
     },
     {
       path: '404',
@@ -114,4 +130,5 @@ export default function Router() {
   ]);
 
   return routes;
+
 }

@@ -1,11 +1,36 @@
-import React, { useState } from 'react'
-import { Box, Card, Container, Typography, FormControl,Button,IconButton, alpha, OutlinedInput } from '@mui/material'
+import React, { useState,useEffect } from 'react'
+import { Box, Card, Container, Typography, FormControl,Button,IconButton, alpha, OutlinedInput, CircularProgress } from '@mui/material'
 import uploadFileImage from '../../assets/icons/upload-.png'
 import { Close } from '@mui/icons-material';
+import { useSelector,useDispatch } from 'react-redux';
+import {showToast} from '../../features/toast/actions/toastAction'
+import { updateCategory,getCategory } from '../../features/category/actions/categoryActions'
+import { loadingSelector,getCategorySelector,updateLoadingSelector } from '../../features/category/selectors/categorySelectors'
+import { useParams } from 'react-router-dom';
 
 export default function UpdateCategory() {
     const [categoryName,setCategoryName] = useState('')
     const [selectedImage, setSelectedImage] = React.useState(null);
+    const [image, setImage] = useState(null)
+    const categoryId = useParams().categoryId
+    const dispatch = useDispatch()
+    const loading = useSelector(loadingSelector)
+    const updateLoading = useSelector(updateLoadingSelector)
+    const categoryData = useSelector(getCategorySelector)
+
+    useEffect(()=>{
+        dispatch(getCategory(categoryId))
+    },[])
+
+
+    useEffect(()=>{
+        if(categoryData){
+            setCategoryName(categoryData.categoryName)
+            setSelectedImage(categoryData.image)
+            
+        }
+    },[categoryData])
+
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -13,6 +38,7 @@ export default function UpdateCategory() {
         
 
         if (file) {
+            setImage(file)
             const reader = new FileReader();
             reader.onloadend = () => {
                 setSelectedImage(reader.result);
@@ -24,15 +50,19 @@ export default function UpdateCategory() {
 
 
 
-
 const submitHandle = () =>{
+    if(!categoryName || !selectedImage){
+        dispatch(showToast('Please fill all fields','error'))
+        return
+    }
     
     let formData = new FormData()
   
     formData.append('categoryName',categoryName)
-    formData.append('file',selectedImage)
+    formData.append('file',image)
+    formData.append('imageId',categoryData?.image)
 
-    console.log(...formData);
+    dispatch(updateCategory(categoryId,formData))
 }
 
 
@@ -44,7 +74,9 @@ const submitHandle = () =>{
             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }} >
 
                 <Card sx={{ py: 2, px: 3, maxWidth: '860px', width: '100%' }} >
-
+                {loading ? <Box sx={{display:'flex',justifyContent:'center',alignItems:'center',height:'580px'}} >
+                        <CircularProgress />
+                    </Box>:
                     <FormControl  fullWidth  >
                         <Typography variant='subtitle1' sx={{ color: 'text.secondary', fontWeight: 'fontWeightSemiBold', mb: 1 }}>Category Name</Typography>
                         <OutlinedInput
@@ -145,7 +177,8 @@ const submitHandle = () =>{
                         </Box>
 
                         <Box textAlign={'center'}>
-                       <Button onClick={()=>submitHandle()} variant='contained'  sx={{
+                        {
+                                updateLoading ? <CircularProgress sx={{m:2}} /> : <Button onClick={()=>submitHandle()} variant='contained'  sx={{
                             mt:2,
                             background:theme => theme.palette.common.black,
                             width:'120px',
@@ -153,9 +186,10 @@ const submitHandle = () =>{
                                 background:theme => theme.palette.common.black,
                                 opacity:.8
                             }
-                        }} >Update</Button>
+                        }} >Update</Button> }
                        </Box>
                     </FormControl>
+}
                 </Card>
             </Box>
         </Container>

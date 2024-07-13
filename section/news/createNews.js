@@ -1,22 +1,55 @@
-import React, { useState } from 'react'
-import { Box, Card, Container, Typography, FormControl, Button, IconButton, alpha, OutlinedInput, Select, MenuItem, NativeSelect, Paper } from '@mui/material'
+import React, { useState,useEffect } from 'react'
+import { Box, Card, Container, Typography, FormControl, Button, IconButton, alpha, OutlinedInput, Select, MenuItem, NativeSelect, Paper, CircularProgress } from '@mui/material'
 import uploadFileImage from '../../assets/icons/upload-.png'
 import { Close } from '@mui/icons-material';
-
-
-import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-
-
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import {getAllLanguages} from '../../features/language/actions/languageActions'
+import {getAllCategories} from '../../features/category/actions/categoryActions'
+import {createNews} from '../../features/news/actions/newsActions'
+import { useDispatch, useSelector } from 'react-redux';
+import {getCategoriesSelector} from '../../features/category/selectors/categorySelectors'
+import {getAllLanguageSelector} from '../../features/language/selectors/languageSelectors'
+import { loadingSelector } from '../../features/news/selectors/newsSelectors';
 
 export default function CreateNews() {
     const [title, setTitle] = useState('')
     const [categoryId, setCategoryId] = useState('')
-    const [languageId, SetLanguage] = useState('')
-    const [content,setComtent] = useState('')
+    const [languageId, setLanguage] = useState('')
+    const [content,setContent] = useState('')
     const [selectedImage, setSelectedImage] = React.useState(null);
+    const [image, setImage] = useState(null)
+    const categories = useSelector(getCategoriesSelector)
+    const languages = useSelector(getAllLanguageSelector)
+    const loading = useSelector(loadingSelector)
+
+    const dispatch = useDispatch()
+
+
+
+    useEffect(() => {
+        if(categories.length === 0){
+            dispatch(getAllCategories())
+        }
+        if(languages.length === 0){
+            dispatch(getAllLanguages())
+        }
+
+    }, [])
+
+    useEffect(() => {
+        if(!loading){
+            setTitle('')
+            setCategoryId('')
+            setLanguage('')
+            setContent('')
+            setSelectedImage(null)
+            setImage(null)
+        }
+    }, [loading])
+
+    
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -24,6 +57,7 @@ export default function CreateNews() {
 
 
         if (file) {
+            setImage(file)
             const reader = new FileReader();
             reader.onloadend = () => {
                 setSelectedImage(reader.result);
@@ -35,20 +69,18 @@ export default function CreateNews() {
 
     const submitHandle = () => {
 
-        let formData = new FormData()
 
+        const formData = new FormData();
         formData.append('title', title)
-        formData.append('file', selectedImage)
+        formData.append('categoryId', categoryId)
+        formData.append('languageId', languageId)
+        formData.append('content', content)
+        formData.append('file', image)
 
-        console.log(...formData);
+        dispatch(createNews(formData))
     }
 
-const formats = [
-  'header', 'font', 'size',
-  'bold', 'italic', 'underline', 'strike', 'blockquote',
-  'list', 'bullet', 'indent',
-  'link', 'image', 'video'
-];
+
 
     return (
         <Container maxWidth='xl' >
@@ -73,20 +105,21 @@ const formats = [
                     <FormControl fullWidth >
                         <Box >
                             <Typography variant='subtitle1' sx={{ color: 'text.secondary', fontWeight: 'fontWeightSemiBold', mb: 1, mt: 2 }}>Category</Typography>
-                            <Select fullWidth onChange={(e) => setCategoryId(e.target.value)} >
-                                <MenuItem value={10}>Tamil</MenuItem>
-                                <MenuItem value={20}>English</MenuItem>
-                                <MenuItem value={30}>Computer science</MenuItem>
+                            <Select fullWidth value={categoryId} onChange={(e) => setCategoryId(e.target.value)} >
+                                {categories.map((item, index) => (
+                                    <MenuItem key={index} value={item._id}>{item.categoryName}</MenuItem>
+                                ))}
+
                             </Select>
                         </Box>
                     </FormControl>
                     <FormControl fullWidth>
                         <Box >
                             <Typography variant='subtitle1' sx={{ color: 'text.secondary', fontWeight: 'fontWeightSemiBold', mb: 1, mt: 2  }}>Language</Typography>
-                            <Select fullWidth >
-                                <MenuItem value={10}>Tamil</MenuItem>
-                                <MenuItem value={20}>English</MenuItem>
-                                <MenuItem value={30}>Computer science</MenuItem>
+                            <Select fullWidth  value={languageId} onChange={(e)=>setLanguage(e.target.value)} >
+                                {languages.map((item, index) => (
+                                    <MenuItem key={index} value={item._id}>{item.languageName}</MenuItem>
+                                ))}
                             </Select>
                         </Box>
                     </FormControl>
@@ -197,13 +230,19 @@ const formats = [
                     config={{
 
                     }}
-                    data="contenet here !"/>
+                    onChange={(event, editor) => {
+                        const data = editor.getData();
+                        setContent(data);
+                      }}
+                   />
 
                     
                         </Paper>
                        </FormControl>
 
                         <Box textAlign={'center'}>
+                                {loading ?
+                            <CircularProgress/>:
                             <Button onClick={() => submitHandle()} variant='contained' sx={{
                                 mt: 2,
                                 background: theme => theme.palette.common.black,
@@ -212,7 +251,8 @@ const formats = [
                                     background: theme => theme.palette.common.black,
                                     opacity: .8
                                 }
-                            }} >Create</Button>
+                            }} >Create</Button>    
+                            }
                         </Box>
                     </FormControl>
                 </Card>

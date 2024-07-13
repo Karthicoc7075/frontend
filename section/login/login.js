@@ -1,11 +1,14 @@
 
-import { Stack, TextField, Button, Container, FormLabel, Typography } from '@mui/material';
+import { Stack, TextField, Button, Container, FormLabel, Typography, CircularProgress, Box } from '@mui/material';
 import React, { useState } from 'react';
-
-
+import { useDispatch, useSelector } from 'react-redux';
+import { login } from '../../features/auth/actions/authActions';
+import { loadingSelector } from '../../features/auth/selectors/authSelector';
 function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const loading = useSelector(loadingSelector)
+    const dispatch = useDispatch();
 
     const handleUsernameChange = (event) => {
         setUsername(event.target.value);
@@ -16,7 +19,11 @@ function Login() {
     };
 
     const handleLogin = () => {
-        // Perform login logic here
+//          if(!username || !password) {
+// alert('Please enter username and password');
+//         }
+
+        dispatch(login(username, password));
     };
 
     return (
@@ -48,9 +55,18 @@ function Login() {
                         value={password}
                         onChange={handlePasswordChange}
                     />
-                    <Button variant="contained" sx={{ mt: 5,p:1, background: 'linear-gradient(310deg, #2152FF, #21D4FD)', }} onClick={handleLogin} >
+                    
+                    <Box sx={{display:'flex',justifyContent:'center',mt:4}} >
+                        
+                        {
+                       loading ?
+                       <CircularProgress />
+                       :
+                       <Button variant="contained" sx={{p:1,width:'100%', background: 'linear-gradient(310deg, #2152FF, #21D4FD)', }} onClick={handleLogin} >
                         Login
                     </Button>
+                    } 
+                     </Box>
                 </Stack>
             </Container>
         </Stack>

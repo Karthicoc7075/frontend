@@ -6,6 +6,17 @@ import authReducer from '../features/auth/reducers/authReducer'
 import classReducer from '../features/class/reducers/classReducer';
 import subjectReducer from '../features/subject/reducers/subjectReducer';
 import materialReducer from '../features/material/reducers/materialReducer';
+import mediumReducer from '../features/medium/reducers/mediumReducer';
+import categoryReducer from '../features/category/reducers/categoryReducer';
+import languageReducer from '../features/language/reducers/languageReducer';
+import sliderReducer from '../features/slider/reducers/sliderReducer';
+import reviewReducer from '../features/review/reducers/reviewReducer';
+import reportReducer from '../features/report/reducers/reportReducers';
+import supportReducer from '../features/support/reducers/supportReducer';
+import notificationReducer from '../features/notification/reducers/notificationReducer';
+import versionReducer from '../features/version/reducers/versionReducer';
+import settingReducer from '../features/setting/reducers/settingReducer';
+import newsReducer from '../features/news/reducers/newsReducer';
 import toastReducer from '../features/toast/reducers/toasterReducer';
 
 const rootReducer = combineReducers({
@@ -13,6 +24,17 @@ const rootReducer = combineReducers({
     class: classReducer,
     subject: subjectReducer,
     material: materialReducer,
+    medium: mediumReducer,
+    category: categoryReducer,
+    language: languageReducer,
+    slider: sliderReducer,
+    review: reviewReducer,
+    report: reportReducer,
+    support: supportReducer,
+    notification: notificationReducer,
+    version: versionReducer,
+    setting: settingReducer,
+    news: newsReducer,
     toast: toastReducer
 });
 

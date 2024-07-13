@@ -1,24 +1,84 @@
-import React, { useState } from 'react'
-import { Box, Card, Container, Typography, FormControl, Button, IconButton, alpha, OutlinedInput, Select, MenuItem, NativeSelect } from '@mui/material'
+import React, { useEffect, useState } from 'react'
+import { Box, Card, Container, Typography, FormControl, Button, IconButton, alpha, OutlinedInput, Select, MenuItem, NativeSelect, CircularProgress } from '@mui/material'
 import uploadFileImage from '../../assets/icons/upload-.png'
 import uploadFile from '../../assets/icons/file-upload.png'
 import { Close } from '@mui/icons-material';
+import { getMaterial, updateMaterial } from '../../features/material/actions/materialActions';
+import { useDispatch, useSelector } from 'react-redux';
+import { getMaterialSelector, updateLoadingSelector } from '../../features/material/selectors/materialSelectors';
+import { getAllClasses,getManageClass } from '../../features/class/actions/classActions';
+import { getAllMediums } from '../../features/medium/actions/mediumActions';
+import { getAllClassesSelector,classSubjectsSelector } from '../../features/class/selectors/classSelector';
+import { getAllMediumsSelector } from '../../features/medium/selectors/mediumSelectors';
+import { useParams } from 'react-router-dom';
+import { showToast } from '../../features/toast/actions/toastAction';
 
 function UpdateMaterial() {
     const [title, setTitle] = useState('')
     const [classId, setClassId] = useState('')
-    const [subjectId, SetSubjectId] = useState('')
+    const [subjectId, setSubjectId] = useState('')
     const [mediumId, setMediumId] = useState('')
     const [selectedImage, setSelectedImage] = React.useState(null);
+    const [image, setImage] = useState('')
+    const [link, setLink] = useState('')
     const [fileType, setFileType] = useState('')
+    const [fileDetails, setFileDetails] = useState(null)
+    const materialId = useParams().materialId
     const [selectedFile, setSelectedFile] = useState(null)
+    const getMaterialData = useSelector(getMaterialSelector)
+    const classes = useSelector(getAllClassesSelector)
+    const classSubjects = useSelector(classSubjectsSelector)
+    const mediums = useSelector(getAllMediumsSelector)
 
+    const updateLoading = useSelector(updateLoadingSelector)
+
+    const dispatch = useDispatch()
+
+
+    useEffect(() => {
+        dispatch(getMaterial(materialId))
+        dispatch(getAllClasses())
+        dispatch(getAllMediums())
+    }, [])
+
+
+    useEffect(() => {
+        if(classId){
+        dispatch(getManageClass(classId))
+        }
+    }, [classId])
+
+    console.log(getMaterialData);
+
+    useEffect(() => {
+        if (getMaterialData) {
+            setTitle(getMaterialData.title)
+            setClassId(getMaterialData.class)
+            setSubjectId(getMaterialData.subject)
+            setMediumId(getMaterialData.medium)
+            setSelectedImage(getMaterialData.image)
+            setFileType(getMaterialData.fileType)
+            setFileDetails({
+                fileName: getMaterialData.fileLink.split('-').pop(),
+                fileSize: getMaterialData.fileSize
+            })
+            setLink(getMaterialData.fileLink)
+        }
+    }, [getMaterialData])
+
+
+   const classChangeHandle = (e) => {
+
+        setClassId(e.target.value)
+        setSubjectId('')
+    }
     const handleImageChange = (e) => {
         const file = e.target.files[0];
 
 
 
         if (file) {
+            setImage(file);
             const reader = new FileReader();
             reader.onloadend = () => {
                 setSelectedImage(reader.result);
@@ -26,6 +86,10 @@ function UpdateMaterial() {
             reader.readAsDataURL(file);
         }
     };
+    const fileCloseHandle = () => {
+        setSelectedFile(null)
+        setFileDetails(null)
+    }
 
     const handleFileChange = (e) => {
         const file = e.target.files[0]
@@ -34,12 +98,44 @@ function UpdateMaterial() {
 
     const submitHandle = () => {
 
+        if(!subjectId){
+            dispatch(showToast('Please select subject','error'))
+            return
+        }
+
+        if(!selectedImage){
+            dispatch(showToast('Please select image','error'))
+            return
+        }
+
+        if(fileType === 'linkFile' && !link){
+            dispatch(showToast('Please enter file link','error'))
+            return 
+        }
+
+        if(fileType === 'uploadFile'){
+            
+          
+            if(!selectedFile){
+                dispatch(showToast('Please select file','error'))
+                return
+            }
+
+
+        }
+
         let formData = new FormData()
 
         formData.append('title', title)
-        formData.append('file', selectedImage)
+        formData.append('classId', classId)
+        formData.append('subjectId', subjectId)
+        formData.append('mediumId', mediumId)
+        formData.append('image', image)
+        formData.append('file', selectedFile)
+        formData.append('fileLink', link)
 
-        console.log(...formData);
+        dispatch(updateMaterial(materialId, formData))
+        
     }
 
 
@@ -66,53 +162,59 @@ function UpdateMaterial() {
                     <FormControl fullWidth >
                         <Box >
                             <Typography variant='subtitle1' sx={{ color: 'text.secondary', fontWeight: 'fontWeightSemiBold', mb: 1, mt: 2 }}>Class</Typography>
-                            <Select fullWidth onChange={(e) => setClassId(e.target.value)} >
-                                <MenuItem value={10}>Tamil</MenuItem>
-                                <MenuItem value={20}>English</MenuItem>
-                                <MenuItem value={30}>Computer science</MenuItem>
+                            <Select fullWidth value={classId} onChange={(e) =>classChangeHandle(e)} >
+                                {classes.map((classItem) => (
+                                    <MenuItem value={classItem._id} key={classItem._id}>{classItem.className}</MenuItem>
+                                ))}
                             </Select>
                         </Box>
                     </FormControl>
                     <FormControl fullWidth>
                         <Box >
-                            <Typography variant='subtitle1' sx={{ color: 'text.secondary', fontWeight: 'fontWeightSemiBold', mb: 1, mt: 2  }}>Subject</Typography>
-                            <Select fullWidth disabled={classId ? false : true}>
-                                <MenuItem value={10}>Tamil</MenuItem>
-                                <MenuItem value={20}>English</MenuItem>
-                                <MenuItem value={30}>Computer science</MenuItem>
+                            <Typography variant='subtitle1' sx={{ color: 'text.secondary', fontWeight: 'fontWeightSemiBold', mb: 1, mt: 2 }}>Subject</Typography>
+                            <Select fullWidth disabled={classId ? false : true} value={subjectId} onChange={(e)=>setSubjectId(e.target.value)} >
+                            {
+                                   classSubjects.length ==0 ?
+                                   <MenuItem value=''>No Subject Found</MenuItem>
+                                   :
+                                    classSubjects.map((item,index)=>(
+                                        <MenuItem key={index} value={item._id}>{item.subjectName}</MenuItem>
+                                   ))
+                                }
                             </Select>
                         </Box>
                     </FormControl>
                     <FormControl fullWidth>
                         <Box >
-                            <Typography variant='subtitle1' sx={{ color: 'text.secondary', fontWeight: 'fontWeightSemiBold', mb: 1, mt: 2  }}>Medium</Typography>
-                            <Select fullWidth >
-                                <MenuItem value={10}>Tamil</MenuItem>
-                                <MenuItem value={20}>English</MenuItem>
-                                <MenuItem value={30}>Computer science</MenuItem>
+                            <Typography variant='subtitle1' sx={{ color: 'text.secondary', fontWeight: 'fontWeightSemiBold', mb: 1, mt: 2 }}>Medium</Typography>
+                            <Select fullWidth value={mediumId} onChange={(e)=>setMediumId(e.target.value)} >
+                                {mediums.map((medium) => (
+                                    <MenuItem value={medium._id} key={medium._id}>{medium.mediumName}</MenuItem>
+                                ))}
                             </Select>
                         </Box>
                     </FormControl>
                     <FormControl fullWidth >
                         <Box >
-                            <Typography variant='subtitle1' sx={{ color: 'text.secondary', fontWeight: 'fontWeightSemiBold', mb: 1, mt: 2  }}>File Type</Typography>
-                            <Select defaultValue={'UploadFile'} disabled fullWidth onChange={(e) => setFileType(e.target.value)} >
-                                <MenuItem value='UploadFile' >UploadFile</MenuItem>
+                            <Typography variant='subtitle1' sx={{ color: 'text.secondary', fontWeight: 'fontWeightSemiBold', mb: 1, mt: 2 }}>File Type</Typography>
+                            <Select value={fileType ?? 'uploadFile'} disabled fullWidth onChange={(e) => setFileType(e.target.value)} >
+                                <MenuItem value='uploadFile' >UploadFile</MenuItem>
+                                <MenuItem value='linkFile' >LinkFile</MenuItem>
                             </Select>
                         </Box>
                     </FormControl>
                     <FormControl fullWidth >
                         {
-                            fileType === 'LinkFile' ?
+                            fileType === 'linkFile' ?
                                 <Box  >
-                                    <Typography variant='subtitle1' sx={{ color: 'text.secondary', fontWeight: 'fontWeightSemiBold', mb: 1, mt: 2  }}>File Link</Typography>
-                                    <OutlinedInput placeholder='File link' fullWidth />
+                                    <Typography variant='subtitle1' sx={{ color: 'text.secondary', fontWeight: 'fontWeightSemiBold', mb: 1, mt: 2 }}>File Link</Typography>
+                                    <OutlinedInput placeholder='File link' fullWidth value={link} onChange={(e)=>setLink(e.target.value)} />
                                 </Box> :
                                 <Box>
-                                    <Typography variant='subtitle1' sx={{ color: 'text.secondary', fontWeight: 'fontWeightSemiBold', mb: 1, mt: 2  }}>Upload File</Typography>
+                                    <Typography variant='subtitle1' sx={{ color: 'text.secondary', fontWeight: 'fontWeightSemiBold', mb: 1, mt: 2 }}>Upload File</Typography>
 
                                     <Box>
-                                        {!selectedFile &&
+                                        {(!selectedFile && !fileDetails) &&
                                             <Box
                                                 sx={{
                                                     position: 'relative',
@@ -153,7 +255,7 @@ function UpdateMaterial() {
                                                             gap: 1,
                                                         }}
                                                     >
-                                                       <Box component='img' src={uploadFileImage} sx={{ width: {xs:'200px',sm:'320px'} }} />
+                                                        <Box component='img' src={uploadFileImage} sx={{ width: { xs: '200px', sm: '320px' } }} />
                                                         <Typography variant="subtitle1" mt={1}>
                                                             Drop or Select File
                                                         </Typography>
@@ -170,9 +272,10 @@ function UpdateMaterial() {
 
 
 
-                                        {selectedFile && (
+                                        {selectedFile &&
                                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', bgcolor: (theme) => theme.palette.primary.lighter, borderRadius: 1, p: 1, lineHeight: 0 }} >
                                                 <Typography variant='subtitle1' sx={{ ml: 2 }}>{selectedFile.name}</Typography>
+                                                <Typography variant='subtitle1' sx={{ ml: 2 }}>   {Math.round((selectedFile.size / 1024) / 1024)} MB  </Typography>
                                                 <IconButton
                                                     sx={{
                                                         width: 26,
@@ -191,8 +294,33 @@ function UpdateMaterial() {
                                                     <Close />
                                                 </IconButton>
 
-                                            </Box>
-                                        )}
+                                            </Box>}
+                                        {fileDetails  &&
+
+                                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', bgcolor: (theme) => theme.palette.primary.lighter, borderRadius: 1, p: 1, lineHeight: 0 }} >
+                                             <Typography variant='subtitle1' sx={{ ml: 2 }}>{fileDetails.fileName}67</Typography>
+                                             <Typography variant='subtitle1' sx={{ ml: 2 }}>  {fileDetails.fileSize}  </Typography>
+                                             <IconButton
+                                                 sx={{
+                                                     width: 26,
+                                                     height: 26,
+                                                     color: (theme) => theme.palette.grey[0],
+                                                     backgroundColor: (theme) => alpha(theme.palette.grey[600], .5),
+                                                     boxShadow: (theme) => theme.shadows[8],
+                                                     backdropFilter: `blur(${6}px)`,
+                                                     WebkitBackdropFilter: `blur(${6}px)`,
+                                                     '&:hover': {
+                                                         background: theme => alpha(theme.palette.grey[700], .6)
+                                                     }
+                                                 }}
+                                                 onClick={()=>fileCloseHandle()}
+                                             >
+                                                 <Close />
+                                             </IconButton>
+
+                                         </Box>
+
+                                        }
                                     </Box>
                                 </Box>
                         }
@@ -200,7 +328,7 @@ function UpdateMaterial() {
                     <FormControl fullWidth >
 
                         <Box>
-                            <Typography variant='subtitle1' sx={{ color: 'text.secondary', fontWeight: 'fontWeightSemiBold', mb: 1, mt: 2  }}>Image</Typography>
+                            <Typography variant='subtitle1' sx={{ color: 'text.secondary', fontWeight: 'fontWeightSemiBold', mb: 1, mt: 2 }}>Image</Typography>
 
                             <Box
                                 sx={{
@@ -243,7 +371,7 @@ function UpdateMaterial() {
                                                 gap: 1,
                                             }}
                                         >
-                                           <Box component='img' src={uploadFileImage} sx={{ width: {xs:'200px',sm:'320px'} }} />
+                                            <Box component='img' src={uploadFileImage} sx={{ width: { xs: '200px', sm: '320px' } }} />
                                             <Typography variant="subtitle1" mt={1}>
                                                 Drop or Select File
                                             </Typography>
@@ -293,9 +421,12 @@ function UpdateMaterial() {
                             </Box>
                         </Box>
 
-                        <Box textAlign={'center'}>
+                        <Box sx={{display:'flex',justifyContent:'center',mt:2}}>
+                           {
+                            updateLoading ?
+                            <CircularProgress />:
                             <Button onClick={() => submitHandle()} variant='contained' sx={{
-                                mt: 2,
+                          
                                 background: theme => theme.palette.common.black,
                                 width: '120px',
                                 ':hover': {
@@ -303,7 +434,8 @@ function UpdateMaterial() {
                                     opacity: .8
                                 }
                             }} >Update</Button>
-                        </Box>
+                        
+    }    </Box>
                     </FormControl>
                 </Card>
             </Box>
