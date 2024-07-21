@@ -6,7 +6,7 @@ export const GetAppSettings = async (dispatch) => {
         const response = await axiosInstance.get('/setting/app');
         return response.data;
     } catch (error) {
-        dispatch(showToast(error.response.data.message, 'error'));
+         dispatch(showToast(error.response?.data?.message || error.message, 'error'));
     }
 }
 
@@ -15,7 +15,7 @@ export const UpdateAppSettings = async (id,data,dispatch) => {
         const response = await axiosInstance.put(`/setting/app/update/${id}`, data);
         return response.data;
     } catch (error) {
-        dispatch(showToast(error.response.data.message, 'error'));
+         dispatch(showToast(error.response?.data?.message || error.message, 'error'));
     }
 }
 
@@ -24,7 +24,7 @@ export const GetAdsSettings = async (dispatch) => {
         const response = await axiosInstance.get('/setting/ads');
         return response.data;
     } catch (error) {
-        dispatch(showToast(error.response.data.message, 'error'));
+         dispatch(showToast(error.response?.data?.message || error.message, 'error'));
     }
 }
 
@@ -33,7 +33,7 @@ export const UpdateAdsSettings = async (id,data,dispatch) => {
         const response = await axiosInstance.put(`/setting/ads/update/${id}`, data);
         return response.data;
     } catch (error) {
-        dispatch(showToast(error.response.data.message, 'error'));
+         dispatch(showToast(error.response?.data?.message || error.message, 'error'));
     }
 }
 

@@ -1,13 +1,13 @@
 import axiosInstance from "./axiosConfig";
 import { showToast } from "../features/toast/actions/toastAction";
 
-export const GetAllMediums = async (query,limit,dispatch) => {
+export const GetAllMediums = async (dispatch) => {
     try {
         const response = await axiosInstance.get(`/medium/allMediums`);
         return response.data;
     } catch (error) {
-        console.log(error.response);
-        dispatch(showToast(error.response.data.message, 'error'));
+        console.log(error);
+         dispatch(showToast(error.response?.data?.message || error.message, 'error'))
     }
 }
 
@@ -18,7 +18,7 @@ export const GetMedium = async (id, dispatch) => {
         return response.data;
     } catch (error) {
         console.log(error.response);
-        dispatch(showToast(error.response.data.message, 'error'));
+         dispatch(showToast(error.response?.data?.message || error.message, 'error'))
     }
 }
 
@@ -31,7 +31,7 @@ export const CreateMedium = async (data, dispatch) => {
         });
         return response.data;
     } catch (error) {
-        dispatch(showToast(error.response.data.message, 'error'));
+         dispatch(showToast(error.response?.data?.message || error.message, 'error'))
     }
 }
 
@@ -45,7 +45,7 @@ export const UpdateMedium = async (id, data, dispatch) => {
         return response.data;
     } catch (error) {
         console.log(error.response);
-        dispatch(showToast(error.response.data.message, 'error'));
+         dispatch(showToast(error.response?.data?.message || error.message, 'error'))
     }
 }
 
@@ -55,6 +55,6 @@ export const DeleteMedium = async (id, dispatch) => {
         return response.data;
     } catch (error) {
         console.log(error.response);
-        dispatch(showToast(error.response.data.message, 'error'));
+         dispatch(showToast(error.response?.data?.message || error.message, 'error'))
     }
 }

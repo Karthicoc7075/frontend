@@ -24,6 +24,8 @@ import ReportIcon from "../../assets/icons/navbar/report.png";
 import NotificationIcon from "../../assets/icons/navbar/notification.png";
 import VersionIcon from "../../assets/icons/navbar/version.png";
 import SettingIcon from "../../assets/icons/navbar/setting.png";
+import userIcon from "../../assets/icons/navbar/user.svg";
+import { path } from "slate";
 
 const testData = [
   {
@@ -42,15 +44,16 @@ const testData = [
     icon: SubjectIcon,
   },
   {
-    title: "material",
-    path: "/material",
-    icon: MaterialIcon,
-  },
-  {
     title: "medium",
     path: "/medium",
     icon: MediumIcon,
   },
+  {
+    title: "material",
+    path: "/material",
+    icon: MaterialIcon,
+  },
+ 
   {
     title: "category",
     path: "/category",
@@ -100,6 +103,11 @@ const testData = [
     title: "setting",
     path: "/setting",
     icon: SettingIcon,
+  },
+  {
+    title: "user",
+    path: "/user",
+    icon: userIcon,
   },
   {
     title: "Not found",
@@ -246,7 +254,8 @@ function NavItem({ item }) {
           }),
         }}
       >
-        <SvgColor src={item.icon} color={active ? "#fff" : ""} />
+        <SvgColor src={item.icon} color={active ? "#fff" : ""}    width={22}
+      height={22} />
       </Box>
 
       <Box component="span">{item.title} </Box>

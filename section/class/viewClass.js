@@ -46,6 +46,7 @@ export default function ViewClass() {
             setShowModel={setShowModel}
             deleteHandle={deleteHandle}
             data='Class'
+            desc='Deleting this class will delete all class subjects and materials associated with this class.Are you sure you want to delete this class?'
             loading={deleteLoading}
            />
    
@@ -68,11 +69,24 @@ export default function ViewClass() {
           {loading ? <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }} >
         <CircularProgress />
       </Box> :
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            {classes.map((item, index) => (
-              <ClassItem key={index} item={item} setShowModel={setShowModel} setDeleteId={setDeleteId} />
-            ))}
-          </Grid>
+          <Box>
+            {
+              classes.length > 0 ?
+                <Grid container spacing={2}>
+                  {classes.map((item) => (
+                    <ClassItem
+                      key={item._id}
+                      item={item}
+                      setShowModel={setShowModel}
+                      setDeleteId={setDeleteId}
+                    />
+                  ))}
+                </Grid>
+                : <Card sx={{ display:'flex',justifyContent:'center',alignItems:'center',height:'60vh' }}>
+                  <Typography variant="h6" sx={{ textAlign: 'center' }} >No class found</Typography>
+                </Card>
+            }
+          </Box>
         }
       
     </Container>
@@ -136,18 +150,9 @@ function ClassItem({ item, setShowModel, setDeleteId }) {
             component={Link}
             to={`/class/update/${item._id}`}
             variant="contained"
-            sx={{ bgcolor: "linear-gradient(90deg, #2979ff 0%, #2979ff 100%)" }}
+            sx={{ p:1.2,bgcolor: "linear-gradient(90deg, #2979ff 0%, #2979ff 100%)" }}
           >
             Edit
-          </Button>
-
-          <Button
-            component={Link}
-            to={`/class/manage-class/${item._id}`}
-            variant="contained"
-            sx={{ bgcolor: "linear-gradient(90deg, #2979ff 0%, #2979ff 100%)" }}
-          >
-            ManageClass
           </Button>
           <Button
             variant="contained"
@@ -158,6 +163,14 @@ function ClassItem({ item, setShowModel, setDeleteId }) {
             onClick={() => deleteButtonClick()}
           >
             Delete
+          </Button>
+          <Button
+            component={Link}
+            to={`/class/manage-class/${item._id}`}
+            variant="contained"
+            sx={{p:1.2, bgcolor: "linear-gradient(90deg, #2979ff 0%, #2979ff 100%)" }}
+          >
+            Manage Subjects
           </Button>
         </Box>
       </Card>

@@ -42,6 +42,8 @@ export const VersionPage = lazy(() => import('../pages/version/version.js'))
 export const CreateVersionPage = lazy(() => import('../pages/version/createVersion.js'))
 export const UpdateVersionPage = lazy(() => import('../pages/version/updateVersion.js'))
 export const SettingPage = lazy(() => import('../pages/setting/setting.js'))
+export const UserPage = lazy(() => import('../pages/user/user.js'))
+export const CreateUserPage = lazy(() => import('../pages/user/createUser.js'))
 // export const BlogPage = lazy(() => import('src/pages/blog'));
 // export const UserPage = lazy(() => import('src/pages/user'));
 export const LoginPage = lazy(() => import('../pages/login/login'));
@@ -113,6 +115,8 @@ export default function Router() {
         { path: 'version/create', element: <ProtectedRoute><ProtectedRoute><CreateVersionPage /></ProtectedRoute></ProtectedRoute> },
         { path: 'version/update/:versionId', element: <ProtectedRoute><ProtectedRoute><UpdateVersionPage /></ProtectedRoute></ProtectedRoute>},
         { path: 'setting', element: <ProtectedRoute><ProtectedRoute><SettingPage /></ProtectedRoute></ProtectedRoute> },
+        { path: 'user', element: <ProtectedRoute><ProtectedRoute><UserPage /></ProtectedRoute></ProtectedRoute> },
+        { path: 'user/create', element: <ProtectedRoute><ProtectedRoute><CreateUserPage /></ProtectedRoute></ProtectedRoute> },
       ],
     },
     {

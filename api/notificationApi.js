@@ -7,8 +7,8 @@ export const GetAllNotifications = async(dispatch) => {
         const res =await axiosInstance.get('/notification/allNotifications');
         return res.data;
     }
-    catch(err){
-        dispatch(showToast(err.response.data.message,'error'))
+    catch(error){
+         dispatch(showToast(error.response?.data?.message || error.message, 'error'));
     }
 }
 
@@ -17,8 +17,8 @@ export const CreateNotification = async (data,dispatch) => {
         const res = await axiosInstance.post('/notification/create',data);
         return res.data;
     }
-    catch(err){
-        dispatch(showToast(err.response.data.message,'error'))
+    catch(error){
+         dispatch(showToast(error.response?.data?.message || error.message, 'error'));
     }
 }
 
@@ -29,7 +29,7 @@ export const DeleteNotification = async (id,dispatch) => {
         const res = await axiosInstance.delete(`/notification/delete/${id}`);
         return res.data;
     }
-    catch(err){
-        dispatch(showToast(err.response.data.message,'error'))
+    catch(error){
+         dispatch(showToast(error.response?.data?.message || error.message, 'error'));
     }
 }

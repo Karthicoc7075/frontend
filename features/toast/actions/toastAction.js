@@ -3,7 +3,7 @@
 export const SHOW_TOAST = 'SHOW_TOAST';
 export const HIDE_TOAST = 'HIDE_TOAST';
 
-export const showToast = (message, type = 'info') => ({
+export const showToast = (message, type = 'error') => ({
     type: SHOW_TOAST,
     payload: { message, type },
 });

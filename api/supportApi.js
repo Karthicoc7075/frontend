@@ -7,7 +7,7 @@ export const GetAllSupports = async(dispatch) => {
         const response = await axiosInstance.get('/support/allSupports');
         return response.data;
     } catch (error) {
-        dispatch(showToast(error.response.data.message, 'error'))
+        dispatch(showToast(error.response?.data?.message || error.message, 'error'));
     }
 }
 
@@ -18,7 +18,7 @@ export const DeleteSupport = async(id,dispatch) => {
         dispatch(showToast(response.data.message, 'success'));
         return response.data;
     } catch (error) {
-        dispatch(showToast(error.response.data.message, 'error'));
+          dispatch(showToast(error.response?.data?.message || error.message, 'error'));
     }
 }
 
@@ -29,6 +29,6 @@ export const SovleSupport = async(id,dispatch) => {
         dispatch(showToast(response.data.message, 'success'));
         return response.data;
     } catch (error) {
-        dispatch(showToast(error.response.data.message, 'error'));
+          dispatch(showToast(error.response?.data?.message || error.message, 'error'));
     }
 }

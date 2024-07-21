@@ -29,7 +29,8 @@ export default function UpdateSlider() {
     const selectClassData = useSelector(getAllClassesSelector)
     const selectMaterialsData = useSelector(getAllMaterialsSelector)
     const selectNewsData = useSelector(getAllNewsSelector)
-
+    const [page,setPage] = useState(1)
+    const [postLimit,setPostLimit] = useState(10)
     useEffect(()=>{
         dispatch(getSlider(sliderId))
         
@@ -38,7 +39,7 @@ export default function UpdateSlider() {
 
     useEffect(()=>{
         if(sliderType === 'material'){  
-            dispatch(getAllMaterials())
+            dispatch(getAllMaterials(page,postLimit))
         }else if(sliderType === 'news'){
             dispatch(getAllNews())
         }else if(sliderType == 'class'){

@@ -6,7 +6,7 @@ export const GetAllReviews = async (dispatch) => {
         const response = await axiosInstance.get('/review/allReviews')
         return response.data
     } catch (error) {
-        dispatch(showToast(error.response.data.message  ,'error'))
+        dispatch(showToast(error.response?.data?.message || error.message, 'error'));
     }
 }
 
@@ -16,6 +16,6 @@ export const DeleteReview = async (id,dispatch) => {
         const response = await axiosInstance.delete(`/review/delete/${id}`)
         return response.data
     } catch (error) {
-        dispatch(showToast(error.response.data.message, 'error'));
+        dispatch(showToast(error.response?.data?.message || error.message, 'error'));
     }
 }

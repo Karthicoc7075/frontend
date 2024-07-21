@@ -9,8 +9,7 @@ export const GetAllClasses = async (dispatch) => {
         const response = await axiosInstance.get('/class/AllClasses');
         return response.data;
     } catch (error) {
-        console.log(error.response);
-        dispatch(showToast(error.response.data.message, 'error'));
+        dispatch(showToast(error.response?.data?.message || error.message, 'error'));
     }
 }
 
@@ -20,8 +19,8 @@ export const GetClass = async (id, dispatch) => {
         const response = await axiosInstance.get(`/class/${id}`);
         return response.data;
     } catch (error) {
-        console.log(error.response);
-        dispatch(showToast(error.response.data.message, 'error'));
+
+        dispatch(showToast(error.response?.data?.message || error.message, 'error'));
     }
 }
 
@@ -34,7 +33,7 @@ export const CreateClass = async (data, dispatch) => {
         });
         return response.data;
     } catch (error) {
-        dispatch(showToast(error.response.data.message, 'error'));
+        dispatch(showToast(error.response?.data?.message || error.message, 'error'));
     }
 }
 
@@ -48,7 +47,7 @@ export const UpdateClass = async (id, data, dispatch) => {
         return response.data;
     } catch (error) {
         console.log(error.response);
-        dispatch(showToast(error.response.data.message, 'error'));
+        dispatch(showToast(error.response?.data?.message || error.message, 'error'));
     }
 }
 
@@ -58,7 +57,7 @@ export const DeleteClass = async (id, dispatch) => {
         return response.data;
     } catch (error) {
         console.log(error.response);
-        dispatch(showToast(error.response.data.message, 'error'));
+        dispatch(showToast(error.response?.data?.message || error.message, 'error'));
     }
 }
 
@@ -69,7 +68,7 @@ export const CreateClassSubject = async (classId,subjectId, dispatch) => {
         const response = await axiosInstance.post(`/class/${classId}/subject/${subjectId}`);
         return response.data;
     } catch (error) {
-        dispatch(showToast(error.response.data.message, 'error'));
+                dispatch(showToast(error.response?.data?.message || error.message, 'error'));
     }
 }
 
@@ -78,7 +77,7 @@ export const GetClassSubject = async (id, dispatch) => {
         const response = await axiosInstance.get(`/class/${id}/subjects`);
         return response.data;
     } catch (error) {
-        dispatch(showToast(error.response.data.message, 'error'));
+                dispatch(showToast(error.response?.data?.message || error.message, 'error'));
     }
 }
 
@@ -87,6 +86,6 @@ export const DeleteClassSubject = async (classId,subjectId, dispatch) => {
         const response = await axiosInstance.delete(`/class/${classId}/subject/${subjectId}`);
         return response.data;
     } catch (error) {
-        dispatch(showToast(error.response.data.message, 'error'));
+                dispatch(showToast(error.response?.data?.message || error.message, 'error'));
     }
 }

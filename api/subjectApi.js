@@ -8,8 +8,7 @@ export const GetAllSubjects = async (dispatch) => {
         const response = await axiosInstance.get('/subject/allSubjects');
         return response.data;
     } catch (error) {
-        console.log(error.response);
-        dispatch(showToast(error.response.data.message, 'error'));
+        dispatch(showToast(error.response?.data?.message || error.message, 'error'));
     }
 }
 
@@ -18,8 +17,9 @@ export const GetSubject = async (id, dispatch) => {
         const response = await axiosInstance.get(`/subject/${id}`);
         return response.data;
     } catch (error) {
-        console.log(error.response);
-        dispatch(showToast(error.response.data.message, 'error'));
+       
+        dispatch(showToast(error.response?.data?.message || error.message, 'error'));
+       
     }
 }
 
@@ -33,7 +33,8 @@ export const CreateSubject = async (data, dispatch) => {
         });
         return response.data;
     } catch (error) {
-        dispatch(showToast(error.response.data.message, 'error'));
+        dispatch(showToast(error.response?.data?.message || error.message, 'error'));
+       
     }
 }
 
@@ -47,8 +48,9 @@ export const UpdateSubject = async (id, data, dispatch) => {
         });
         return response.data;
     } catch (error) {
-        console.log(error.response);
-        dispatch(showToast(error.response.data.message, 'error'));
+       
+        dispatch(showToast(error.response?.data?.message || error.message, 'error'));
+       
     }
 }
 
@@ -57,8 +59,9 @@ export const DeleteSubject = async (id, dispatch) => {
         const response = await axiosInstance.delete(`/subject/delete/${id}`);
         return response.data;
     } catch (error) {
-        console.log(error.response);
-        dispatch(showToast(error.response.data.message, 'error'));
+       
+        dispatch(showToast(error.response?.data?.message || error.message, 'error'));
+       
     }
 }
 

@@ -41,6 +41,7 @@ export default function ViewMedium() {
             setShowModel={setShowModel}
             deleteHandle={deleteHandle}
             data='Medium'
+            desc="Deleting this media will delete all materials associated with this medium.Are you sure you want to delete this medium?"
             loading={deleteLoading}
            />
             

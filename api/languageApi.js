@@ -7,7 +7,8 @@ export const GetAllLanguages = async (dispatch) => {
             const response = await axiosInstance.get("/language/allLanguages");
             return response.data;
         } catch (error) {
-        dispatch(showToast(error.response.data.message, 'error'))
+            console.log(error)
+        dispatch(showToast(error.response?.data?.message || error.message, 'error'))
         }
     }
 
@@ -18,7 +19,7 @@ export const GetLanguage = async (languageId, dispatch) => {
         return response.data;
     }
     catch (error) {
-        dispatch(showToast(error.response.data.message, 'error'))
+         dispatch(showToast(error.response?.data?.message || error.message, 'error'))
     }
 
 }
@@ -34,7 +35,7 @@ export const CreateLanguage = async (formData, dispatch) => {
         })
         return response.data;
     } catch (error) {
-        dispatch(showToast(error.response.data.message, 'error'))
+         dispatch(showToast(error.response?.data?.message || error.message, 'error'))
     }
 }
 
@@ -43,7 +44,7 @@ export const UpdateLanguage = async (languageId,formData, dispatch) => {
         const response = await axiosInstance.put(`/language/update/${languageId}`,formData);
         return response.data;
     } catch (error) {
-        dispatch(showToast(error.response.data.message, 'error'))
+         dispatch(showToast(error.response?.data?.message || error.message, 'error'))
     }
 }
 
@@ -58,7 +59,7 @@ export const DeleteLanguage = async (languageId, data,dispatch) => {
         });
         return response.data;
     }catch (error) {
-        dispatch(showToast(error.response.data.message, 'error'))
+        dispatch(showToast(error.response?.data?.message || error.message, 'error'))
     }
 }
 

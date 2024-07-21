@@ -3,6 +3,7 @@ import { thunk } from 'redux-thunk';
 import { loadState, saveState } from '../utils/localStorage'
 import  {composeWithDevTools} from '@redux-devtools/extension'
 import authReducer from '../features/auth/reducers/authReducer'
+import dashboardReducer from '../features/dashboard/reducers/dashboardReducer';
 import classReducer from '../features/class/reducers/classReducer';
 import subjectReducer from '../features/subject/reducers/subjectReducer';
 import materialReducer from '../features/material/reducers/materialReducer';
@@ -21,6 +22,7 @@ import toastReducer from '../features/toast/reducers/toasterReducer';
 
 const rootReducer = combineReducers({
     auth: authReducer,
+    dashboard: dashboardReducer,
     class: classReducer,
     subject: subjectReducer,
     material: materialReducer,

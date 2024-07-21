@@ -14,6 +14,7 @@ import { useSelector } from "react-redux";
 import { jwtDecode } from "jwt-decode";
 import { useDispatch } from "react-redux";
 import {logout} from '../../features/auth/actions/authActions'
+import { Link } from "react-router-dom";
 
 export default function Header({ onOpenSidebar }) {
   const theme = useTheme();
@@ -96,7 +97,7 @@ const dispatch = useDispatch()
             
             }}
           >
-            <MenuItem onClick={handleLogout}>Setting</MenuItem>
+            <MenuItem component={Link} to='/setting' onClick={handleModelClose} >Setting</MenuItem>
             <MenuItem onClick={handleLogout}>Logout</MenuItem>
           </Menu>
     </>

@@ -30,6 +30,10 @@ export const passwordChange = (data) => async (dispatch) => {
     }
 }
 
+export const setRole = (role) =>(dispatch)=>{
+    dispatch({type:actionTypes.SET_ROLE, role})
+
+} 
 
 
 export const logout = () => async (dispatch) => {

@@ -97,31 +97,24 @@ function UpdateMaterial() {
     }
 
     const submitHandle = () => {
-
-        if(!subjectId){
-            dispatch(showToast('Please select subject','error'))
-            return
+        if (!subjectId) {
+            dispatch(showToast('Please select subject', 'error'));
+            return;
         }
 
-        if(!selectedImage){
-            dispatch(showToast('Please select image','error'))
-            return
+        if (!selectedImage) {
+            dispatch(showToast('Please select image', 'error'));
+            return;
         }
 
-        if(fileType === 'linkFile' && !link){
-            dispatch(showToast('Please enter file link','error'))
-            return 
+        if (fileType === 'linkFile' && !link) {
+            dispatch(showToast('Please enter file link', 'error'));
+            return;
         }
 
-        if(fileType === 'uploadFile'){
-            
-          
-            if(!selectedFile){
-                dispatch(showToast('Please select file','error'))
-                return
-            }
-
-
+        if (fileType === 'uploadFile' && !selectedFile && !fileDetails) {
+            dispatch(showToast('Please select file', 'error'));
+            return;
         }
 
         let formData = new FormData()

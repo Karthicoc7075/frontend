@@ -19,11 +19,12 @@ export default  function ViewSubject() {
              dispatch(getAllSubjects())
         }
         setShowModel(false)
+        setDeleteId(null)
+
     }, [subjects])
 
     const deleteHandle = () => {
         dispatch(deleteSubject(deleteId))
-        setDeleteId(null)
     }
 
     
@@ -35,6 +36,7 @@ export default  function ViewSubject() {
             setShowModel={setShowModel}
             deleteHandle={deleteHandle}
             data='Subject'
+            desc="Deleting this subject will delete all  class subjects and materials associated with this subject.Are you sure you want to delete this subject?"
             loading={deleteLoading}
            />
       
@@ -50,11 +52,22 @@ export default  function ViewSubject() {
                 <CircularProgress />
             </Box>
             :
-            <Grid container spacing={2} sx={{ mt: 1 }}  >
-                {subjects.map((item, index) => (
-                    <SubjectItem key={index} item={item} setShowModel={setShowModel} setDeleteId={setDeleteId} />
-                ))}
-            </Grid>
+          <Box>
+            {
+                subjects.length > 0 ?
+                <Grid container spacing={2} >
+                    {
+                        subjects.map((item, index) => (
+                            <SubjectItem key={index} item={item} setShowModel={setShowModel} setDeleteId={setDeleteId} />
+                        ))
+                    }
+                </Grid>
+                :
+                <Card sx={{ display:'flex',justifyContent:'center',alignItems:'center',height:'60vh' }}>
+                  <Typography variant="h6" sx={{ textAlign: 'center' }} >No subject found</Typography>
+                </Card>
+            }
+          </Box>
 }
         </Container>
            

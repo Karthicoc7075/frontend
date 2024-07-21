@@ -11,8 +11,7 @@ const SvgColor = forwardRef(({ src, sx, ...other }, ref) => (
     className="svg-color"
     ref={ref}
     sx={{
-      width: 22,
-      height: 22,
+   
       display: 'inline-block',
       bgcolor: 'currentColor',
       mask: `url(${src}) no-repeat center / contain`,

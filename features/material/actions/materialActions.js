@@ -6,7 +6,7 @@ import { GetAllMaterials,GetMaterial,CreateMaterial,UpdateMaterial,DeleteMateria
 export const getAllMaterials = (query, limit) => async (dispatch) => {
     dispatch({ type: types.GET_ALL_MATERIALS_REQUEST });
     try {
-        const response = await GetAllMaterials(query, limit);
+        const response = await GetAllMaterials(query, limit,dispatch);
         const payload ={data: response.data,totalCount: response.totalCount}
         dispatch({ type: types.GET_ALL_MATERIALS_SUCCESS, payload });
     } catch (error) {
@@ -17,7 +17,7 @@ export const getAllMaterials = (query, limit) => async (dispatch) => {
 export const getMaterial = (id) => async (dispatch) => {
     dispatch({ type: types.GET_MATERIAL_REQUEST });
     try {
-        const response = await GetMaterial(id);
+        const response = await GetMaterial(id,dispatch);
         const  payload= response.data
         dispatch({ type: types.GET_MATERIAL_SUCCESS,payload });
     } catch (error) {
@@ -28,7 +28,7 @@ export const getMaterial = (id) => async (dispatch) => {
 export const createMaterial = (formdata) => async (dispatch) => {
     dispatch({ type: types.CREATE_MATERIAL_REQUEST });
     try {
-        const response = await CreateMaterial(formdata);
+        const response = await CreateMaterial(formdata,dispatch);
         dispatch({ type: types.CREATE_MATERIAL_SUCCESS, payload: response.data});
         dispatch(showToast( response.message,'success'));
     } catch (error) {
@@ -40,7 +40,7 @@ export const createMaterial = (formdata) => async (dispatch) => {
 export const updateMaterial = (id, data) => async (dispatch) => {
     dispatch({ type: types.UPDATE_MATERIAL_REQUEST });
     try {
-        const response = await UpdateMaterial(id, data);
+        const response = await UpdateMaterial(id, data,dispatch);
         dispatch({ type: types.UPDATE_MATERIAL_SUCCESS, payload: response.data});
         dispatch(showToast( response.message,'success'));
     } catch (error) {
@@ -51,7 +51,7 @@ export const updateMaterial = (id, data) => async (dispatch) => {
 export const deleteMaterial = (id) => async (dispatch) => {
     dispatch({ type: types.DELETE_MATERIAL_REQUEST });
     try {
-        const response = await DeleteMaterial(id);
+        const response = await DeleteMaterial(id,dispatch);
         dispatch({ type: types.DELETE_MATERIAL_SUCCESS, payload: response.data});
         dispatch(showToast( response.message,'success'));
     } catch (error) {
@@ -62,7 +62,7 @@ export const deleteMaterial = (id) => async (dispatch) => {
 export const updateMaterialStatus = (id) => async (dispatch) => {
     dispatch({ type: types.UPDATE_MATERAL_STATUS_REQUEST });
     try {
-        const response = await UpdateMaterialStatus(id);
+        const response = await UpdateMaterialStatus(id,dispatch);
         dispatch({ type: types.UPDATE_MATERAL_STATUS_SUCCESS, payload: response.data});
         dispatch(showToast( response.message,'success'));
     } catch (error) {

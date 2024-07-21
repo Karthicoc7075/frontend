@@ -1,8 +1,37 @@
-import { Card, Box, Stack, Grid, Typography, Container, } from '@mui/material'
-import React from 'react'
+import { Card, Box, Stack, Grid, Typography, Container, CircularProgress, alpha, } from '@mui/material'
+import React, { useEffect } from 'react'
 import userIcon from '../../assets/icons/circle-user.png'
+import { useDispatch, useSelector } from 'react-redux'
+import { getDashboardData } from '../../features/dashboard/actions/dashboardActions'
+import { getDashboardDataSelectors, loadingSelectors } from '../../features/dashboard/selectors/dashboardSelecors'
+
+
+import ClassIcon from "../../assets/icons/navbar/class.png";
+import SubjectIcon from "../../assets/icons/navbar/subject.png";
+import MaterialIcon from "../../assets/icons/navbar/material.png";
+import MediumIcon from "../../assets/icons/navbar/medium.png";
+import CategoryIcon from "../../assets/icons/navbar/category.png";
+import LanguageIcon from "../../assets/icons/navbar/language.png";
+import NewsIcon from "../../assets/icons/navbar/news.png";
+import SliderIcon from "../../assets/icons/navbar/slider.png";
+import ReviewIcon from "../../assets/icons/navbar/review.png";
+import SupportIcon from "../../assets/icons/navbar/support.png";
+import ReportIcon from "../../assets/icons/navbar/report.png";
+import NotificationIcon from "../../assets/icons/navbar/notification.png";
+import VersionIcon from "../../assets/icons/navbar/version.png";
+import SettingIcon from "../../assets/icons/navbar/setting.png";
+import SvgColor from '../../components/svg-color'
 
 export default function Dashboard() {
+  const dashboardDataCount = useSelector(getDashboardDataSelectors);
+  const loading = useSelector(loadingSelectors);
+  const dispatch = useDispatch();
+
+
+  useEffect(() => {
+    dispatch(getDashboardData());
+  }, [dispatch]);
+
   const colors = [
     'linear-gradient(310deg, #ea0606 0%, #ff667c 100%)',
     'linear-gradient(310deg, #f53939 0%, #fbcf33 100%)',
@@ -25,126 +54,161 @@ export default function Dashboard() {
     'linear-gradient(310deg, #1b4e9b 0%, #98e7ff 100%)',
     'linear-gradient(310deg, #c18d16 0%, #daff45 100%)',
 
-   
+
 
   ]
 
 
-  const test = [
+  const dashboardData = [
     {
       title: 'Total Users',
-      count: 75.353,
-      color: colors[0]
+      count: dashboardDataCount?.totalUsers,
+      color: colors[0],
+      icon: userIcon
     },
     {
       title: 'Total Class',
-      count: 75.353,
-      color: colors[1]
+      count: dashboardDataCount?.totalClasses,
+      color: colors[1],
+      icon: ClassIcon
     },
     {
       title: 'Subjects',
-      count: 75.353,
-      color: colors[2]
+      count: dashboardDataCount?.totalSubjects,
+      color: colors[2],
+      icon: SubjectIcon
     },
     {
       title: 'Materials',
-      count: 75.353,
-      color: colors[3]
+      count: dashboardDataCount?.totalMaterials,
+      color: colors[3],
+      icon: MaterialIcon
     },
     {
       title: 'Medium',
-      count: 75.353,
-      color:  colors[4]
+      count: dashboardDataCount?.totalMediums,
+      color: colors[4],
+      icon: MediumIcon
     },
     {
       title: 'Categories',
-      count: 75.353,
-      color: colors[5]
+      count: dashboardDataCount?.totalCategories,
+      color: colors[5],
+      icon: CategoryIcon
     },
     {
       title: 'Languages',
-      count: 75.353,
-      color: colors[6]
+      count: dashboardDataCount?.totalLanguages,
+      color: colors[6],
+      icon: LanguageIcon
     },
     {
       title: 'Total News',
-      count: 75.353,
-      color: colors[7]
+      count: dashboardDataCount?.totalNews,
+      color: colors[7],
+      icon: NewsIcon
     },
     {
       title: 'Total Sliders',
-      count: 75.353,
-      color: colors[8]
+      count: dashboardDataCount?.totalSliders,
+      color: colors[8],
+      icon: SliderIcon
     },
     {
       title: 'Total Reviews',
-      count: 75.353,
-      color: colors[9]
+      count: dashboardDataCount?.totalReviews,
+      color: colors[9],
+      icon: ReviewIcon
     },
     {
       title: 'Pending Supports',
-      count: 75.353,
-      color:  colors[10]
+      count: dashboardDataCount?.totalPendingSupports,
+      color: colors[10],
+      icon: SupportIcon
     },
     {
       title: 'Reports',
-      count: 75.353,
-      color: colors[11]
+      count: dashboardDataCount?.totalReports,
+      color: colors[11],
+      icon: ReportIcon
     },
     {
       title: 'Notification',
-      count: 75.353,
-      color: colors[12]
+      count: dashboardDataCount?.totalNotifications,
+      color: colors[12],
+      icon: NotificationIcon
     },
-
     {
       title: 'Versions',
-      count: 75.353,
-      color: colors[13]
+      count: dashboardDataCount?.totalVersions,
+      color: colors[13],
+      icon: VersionIcon
     },
     {
       title: 'Revenue',
       count: 75.353,
-      color: colors[14]
+      color: colors[14],
+      icon: SettingIcon
     },
     {
       title: 'Revenue',
       count: 75.353,
-      color: colors[15]
+      color: colors[15],
+      icon: SettingIcon
     },
     {
       title: 'Revenue',
       count: 75.353,
-      color:  colors[16]
+      color: colors[16],
+      icon: SettingIcon
     },
     {
       title: 'Revenue',
       count: 75.353,
-      color: colors[17]
+      color: colors[17],
+      icon: SettingIcon
     },
     {
       title: 'Revenue',
       count: 75.353,
-      color: colors[18]
+      color: colors[18],
+      icon: SettingIcon
     },
-
   ]
 
-  
+
+  console.log();
+
   return (
     <Container maxWidth="xl" >
       <Typography variant="h4" sx={{ mt: 2, mb: 5, ml: 2 }}>
         Hi, Welcome back 👋
       </Typography>
 
-     <Box sx={{display:'flex',justifyContent:'center'}} >
-     <Grid container spacing={3} maxWidth={'lg'}  >
-        {test.map((item, i) => {
-       return     <DashboardItem key={i} item={item} />
-        })}
-
-      </Grid>
-     </Box>
+      {
+        loading ?
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '60dvh'
+        }} >
+          <CircularProgress />
+        </Box>
+        : <Box>
+          {
+            dashboardDataCount !=null ?
+              <Grid container spacing={3}>
+                {
+                  dashboardData.map((item, index) => (
+                    <DashboardItem key={index} item={item} />
+                  ))
+                }
+              </Grid>
+              : <Typography variant="h6" sx={{ textAlign: 'center', mt: 5 }} >No data found</Typography>
+          }
+        </Box>
+      }
 
     </Container>
   )
@@ -154,7 +218,7 @@ export default function Dashboard() {
 
 function DashboardItem({ item }) {
   return (
-    <Grid item  xs={12} sm={6} md={4} lg={3} >
+    <Grid item xs={12} sm={6} md={4} lg={3} >
       <Card
         component={Stack}
         spacing={3}
@@ -163,7 +227,7 @@ function DashboardItem({ item }) {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          py: 2.6,
+          py: { xs: 4, sm: 2.6 },
           px: 2,
           borderRadius: 2,
           boxShadow: '0 20px 27px 0 rgba(0, 0, 0, 0.05)'
@@ -186,10 +250,10 @@ function DashboardItem({ item }) {
           borderRadius: 0.8,
           p: 1.8,
           backgroundImage: item.color,
-          boxShadow:(shadow)=> shadow.shadows[6],
+          boxShadow: (shadow) => shadow.shadows[6],
         }}
         >
-          <Box component={'img'} src={userIcon} style={{ width: '100%' }} />
+          <SvgColor src={item.icon}  color={'#fff'} width={40} height={40} />
         </Box>
 
       </Card>

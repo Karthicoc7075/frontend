@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
 
-const deleteModel = ({showModel,setShowModel,deleteAllHandle,deleteHandle,data,desc,loading} ) => {
+const deleteModel = ({showModel,setShowModel,deleteHandle,data,desc,loading} ) => {
   
   return (
    <Dialog open={showModel}>
@@ -29,18 +29,15 @@ const deleteModel = ({showModel,setShowModel,deleteAllHandle,deleteHandle,data,d
       </DialogTitle>
       <DialogContent>
         <Typography variant='body1' >
-          {desc ? desc  : 'Are you sure you want to delete this {data}?'}
+          {desc ? desc  : `Are you sure you want to delete this ${data}?`}
         </Typography>
       </DialogContent>
       <DialogActions>
         <Button onClick={() => setShowModel(false)} color="primary">
           Cancel
         </Button>
-        <Button onClick={deleteAllHandle} color="secondary">
-          Delete All automatically
-        </Button>
         <Button onClick={deleteHandle} color="secondary">
-          Delete Manually
+         {desc ? 'Delete All' : 'Delete'}
         </Button>
       </DialogActions>
     </Box>:

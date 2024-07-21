@@ -49,7 +49,7 @@ export default function ViewLanguage() {
             deleteAllHandle={deleteAllHandle}
             deleteHandle={deleteHandle}
             data='Language'
-            desc="Are you sure you want to delete this language? Deleting it will also remove all news within the same lanaguage. Do you want to proceed with automatic deletion of the news or delete them manually?"
+            desc="Deleting this language will delete all news associated with this language.Are you sure you want to delete this lanague?"
             loading={deleteLoading}
            />
 <Box sx={{display:'flex',my:2}}>

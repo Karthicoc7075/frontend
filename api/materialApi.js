@@ -8,8 +8,8 @@ export const GetAllMaterials = async (query,limit,dispatch) => {
         const response = await axiosInstance.get(`/material/allMaterials?page=${query}&limit=${limit}`);
         return response.data;
     } catch (error) {
-        console.log(error.response);
-        dispatch(showToast(error.response.data.message, 'error'));
+        console.log( );
+          dispatch(showToast(error.response?.data?.message  || error.message, 'error'))
     }
 }
 
@@ -20,7 +20,7 @@ export const GetMaterial = async (id, dispatch) => {
         return response.data;
     } catch (error) {
         console.log(error.response);
-        dispatch(showToast(error.response.data.message, 'error'));
+          dispatch(showToast(error.response?.data?.message  || error.message, 'error'))
     }
 }
 
@@ -33,7 +33,7 @@ export const CreateMaterial = async (data, dispatch) => {
         });
         return response.data;
     } catch (error) {
-        dispatch(showToast(error.response.data.message, 'error'));
+          dispatch(showToast(error.response?.data?.message  || error.message, 'error'))
     }
 }
 
@@ -47,7 +47,7 @@ export const UpdateMaterial = async (id, data, dispatch) => {
         return response.data;
     } catch (error) {
         console.log(error.response);
-        dispatch(showToast(error.response.data.message, 'error'));
+          dispatch(showToast(error.response?.data?.message  || error.message, 'error'))
     }
 }
 
@@ -58,7 +58,7 @@ export const DeleteMaterial = async (id, dispatch) => {
         return response.data;
     } catch (error) {
         console.log(error.response);
-        dispatch(showToast(error.response.data.message, 'error'));
+          dispatch(showToast(error.response?.data?.message  || error.message, 'error'))
     }
 }
 
@@ -68,6 +68,6 @@ export const UpdateMaterialStatus = async (id, dispatch) => {
         return response.data;
     } catch (error) {
         console.log(error.response);
-        dispatch(showToast(error.response.data.message, 'error'));
+          dispatch(showToast(error.response?.data?.message  || error.message, 'error'))
     }
 }

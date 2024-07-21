@@ -35,7 +35,7 @@ export default function CreateSlider() {
 
     useEffect(()=>{
         if(sliderType =='class'){
-            dispatch(getAllClasses())
+            dispatch(getAllClasses(page,postLimit))
         }
 
         if(sliderType == 'material'){

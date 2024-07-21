@@ -8,7 +8,7 @@ export const GetAllSliders = async (dispatch) => {
                 const response = await axiosInstance.get("/slider/allSliders");
                 return response.data;
             } catch (error) {
-            dispatch(showToast(error.response.data.message, 'error'))
+             dispatch(showToast(error.response?.data?.message || error.message, 'error'));
             }
         }
 
@@ -19,7 +19,7 @@ export const GetSlider = async (sliderId, dispatch)=> {
         return response.data;
     }
     catch (error) {
-        dispatch(showToast(error.response.data.message, 'error'))
+         dispatch(showToast(error.response?.data?.message || error.message, 'error'));
     }
 
 }
@@ -35,7 +35,7 @@ export const CreateSlider = async (formData, dispatch) => {
         })
         return response.data;
     } catch (error) {
-        dispatch(showToast(error.response.data.message, 'error'))
+         dispatch(showToast(error.response?.data?.message || error.message, 'error'));
     }
 }
 
@@ -45,7 +45,7 @@ export const UpdateSlider = async (sliderId,formData, dispatch) => {
         const response = await axiosInstance.put(`/slider/update/${sliderId}`,formData);
         return response.data;
     } catch (error) {
-        dispatch(showToast(error.response.data.message, 'error'))
+         dispatch(showToast(error.response?.data?.message || error.message, 'error'));
     }
 }
 
@@ -56,6 +56,6 @@ export const DeleteSlider = async (sliderId, dispatch) => {
         const response = await axiosInstance.delete(`/slider/delete/${sliderId}`);
         return response.data;
     }catch (error) {
-        dispatch(showToast(error.response.data.message, 'error'))
+         dispatch(showToast(error.response?.data?.message || error.message, 'error'));
     }
 }

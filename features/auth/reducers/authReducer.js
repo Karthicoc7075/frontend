@@ -6,6 +6,7 @@ const initialState = {
     token: null,
     loading: false,
     updateLoading: false,
+    role: 'user',
     error: '',
 };
 
@@ -55,6 +56,14 @@ const authReducer = (state = initialState, action) => {
                     token: null,
                     loading: false,
                     error: '',
+                };
+            case actionTypes.SET_ROLE:
+                return {
+                    ...state,
+                    user: {
+                        ...state.user,
+                        role: action.role,
+                    },
                 };
         case actionTypes.PASSWORD_CHANGE_REQUEST:
             return {

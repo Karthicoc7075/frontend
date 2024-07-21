@@ -8,7 +8,7 @@ export const GetAllCategories = async (dispatch) => {
         const response = await axiosInstance.get("/category/allCategories");
         return response.data;
     } catch (error) {
-       dispatch(showToast(error.response.data.message, 'error'))
+       dispatch(showToast(error.response?.data?.message || error.message, 'error'))
     }
 }
 
@@ -18,7 +18,7 @@ export const GetCategory = async (categoryId, dispatch) => {
         return response.data;
     }
     catch (error) {
-        dispatch(showToast(error.response.data.message, 'error'))
+        dispatch(showToast(error.response?.data?.message || error.message, 'error'))
     }
 
 }
@@ -33,7 +33,7 @@ export const CreateCategory = async (formData, dispatch) => {
         })
         return response.data;
     } catch (error) {
-        dispatch(showToast(error.response.data.message, 'error'))
+        dispatch(showToast(error.response?.data?.message || error.message, 'error'))
     }
 }
 
@@ -42,7 +42,7 @@ export const UpdateCategory = async (categoryId,formData, dispatch) => {
         const response = await axiosInstance.put(`/category/update/${categoryId}`,formData);
         return response.data;
     } catch (error) {
-        dispatch(showToast(error.response.data.message, 'error'))
+        dispatch(showToast(error.response?.data?.message || error.message, 'error'))
     }
 }
 
@@ -57,6 +57,6 @@ export const DeleteCategory = async (categoryId, data,dispatch) => {
         })
         return response.data;
     }catch (error) {
-        dispatch(showToast(error.response.data.message, 'error'))
+        dispatch(showToast(error.response?.data?.message || error.message, 'error'))
     }
 }

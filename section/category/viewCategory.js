@@ -59,7 +59,7 @@ export default function Category() {
             deleteAllHandle={deleteAllHandle}
             deleteHandle={deleteHandle}
             data='Category'
-            desc="Are you sure you want to delete this category? Deleting it will also remove all news within the same category. Do you want to proceed with automatic deletion of the news or delete them manually?"
+            desc="Deleting this category will delete all news associated with this category. Are you sure you want to delete this category?"
             loading={deleteLoading}
            />
    

@@ -10,7 +10,7 @@ import Header from "../components/header/header";
 
 export default function Layout({ children }) {
   const [openSidebar, setOpenSidebar] = useState(false);
-
+console.log('hello');
   return (
     <>
       <Header onOpenSidebar={() => setOpenSidebar(true)} />

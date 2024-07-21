@@ -84,18 +84,9 @@ export default  function CreateMaterial() {
     }
 
     const submitHandle = () => {
-        if(!title || !classId || !subjectId || !mediumId || !image || !fileType){
-            dispatch(showToast('Please fill all the fields','error'))
-            return
-        }
-
-        if(fileType === 'linkFile' && !link){
-            dispatch(showToast('Please fill all the fields','error'))
-            return
-        }
-        if(fileType === 'uploadFile' && !selectedFile){
-            dispatch(showToast('Please fill all the fields','error'))
-            return
+        if (!title || !classId || !subjectId || !mediumId || !image || (!link && fileType === 'linkFile') || (!selectedFile && fileType === 'uploadFile')) {
+            dispatch(showToast('Please fill all the fields', 'error'));
+            return;
         }
 
         let formData = new FormData()
